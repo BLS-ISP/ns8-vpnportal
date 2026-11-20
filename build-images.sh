@@ -9,7 +9,7 @@ repobase="${REPOBASE:-ghcr.io/bls-isp}"
 imagetag="${IMAGETAG:-latest}"
 
 controller_image="${repobase}/vpn-controller"
-module_image="${repobase}/vpn"
+module_image="${repobase}/vpnportal"
 
 if [[ -n "${CONTAINER_ENGINE:-}" ]]; then
     if ! command -v "${CONTAINER_ENGINE}" >/dev/null 2>&1; then

@@ -40,7 +40,7 @@ Usage: bash tests/ns8_smoke_test.sh [OPTIONS]
 
 Options:
   --cleanup             Remove the test module instance (remove-module --no-preserve) after passing
-  --skip-build          Skip ./build-images.sh and use existing ${REPOBASE}/vpn:${IMAGETAG} image
+  --skip-build          Skip ./build-images.sh and use existing ${REPOBASE}/vpnportal:${IMAGETAG} image
   --node <id>           Target NS8 cluster node ID (default: 1)
   --endpoint <host>     Public endpoint hostname/IP for test config (default: vpn-smoke.nethserver.test)
   -h, --help            Show this help message and exit
@@ -115,19 +115,19 @@ log_ok "Detected active NS8 cluster wg0 on UDP port ${CLUSTER_WG0_PORT_BEFORE}"
 
 # 1. Build container & module images
 if [[ "${SKIP_BUILD}" == "false" ]]; then
-    log_step "1/9 Building controller and NS8 module images (${REPOBASE}/vpn:${IMAGETAG})"
+    log_step "1/9 Building controller and NS8 module images (${REPOBASE}/vpnportal:${IMAGETAG})"
     (
         cd "${REPO_ROOT}"
         REPOBASE="${REPOBASE}" IMAGETAG="${IMAGETAG}" ./build-images.sh
     )
-    log_ok "Built ${REPOBASE}/vpn-controller:${IMAGETAG} and ${REPOBASE}/vpn:${IMAGETAG}"
+    log_ok "Built ${REPOBASE}/vpn-controller:${IMAGETAG} and ${REPOBASE}/vpnportal:${IMAGETAG}"
 else
-    log_step "1/9 Skipping image build (--skip-build); using ${REPOBASE}/vpn:${IMAGETAG}"
+    log_step "1/9 Skipping image build (--skip-build); using ${REPOBASE}/vpnportal:${IMAGETAG}"
 fi
 
 # 2. Install module on NS8 node
 log_step "2/9 Installing module via add-module on node ${NODE_ID}"
-ADD_OUT="$(add-module "${REPOBASE}/vpn:${IMAGETAG}" "${NODE_ID}")"
+ADD_OUT="$(add-module "${REPOBASE}/vpnportal:${IMAGETAG}" "${NODE_ID}")"
 MODULE_ID="$(printf '%s\n' "${ADD_OUT}" | python3 -c '
 import json, sys
 lines = [ln.strip() for ln in sys.stdin if ln.strip().startswith("{")]

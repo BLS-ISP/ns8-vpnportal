@@ -66,4 +66,4 @@ jobs:
           IMAGETAG: ${{ steps.meta.outputs.imagetag }}
         run: |
           docker push "${REPOBASE}/vpn-controller:${IMAGETAG}"
-          docker push "${REPOBASE}/vpn:${IMAGETAG}"
+          docker push "${REPOBASE}/vpnportal:${IMAGETAG}"

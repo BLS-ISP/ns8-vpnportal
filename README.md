@@ -101,10 +101,10 @@ flowchart TB
 Install the module on a NethServer 8 node (e.g. node `1`) via the NS8 leader shell:
 
 ```bash
-add-module ghcr.io/bls-isp/vpn:latest 1
+add-module ghcr.io/bls-isp/vpnportal:latest 1
 ```
 
-The command returns the created module instance identifier (for example `vpn1`). Open the **NethServer 8 Cockpit UI**, navigate to **Applications → Business Roadwarrior VPN & Self-Service Portal**, and open **Settings** to complete initial setup.
+The command returns the created module instance identifier (for example `vpnportal1`). Open the **NethServer 8 Cockpit UI**, navigate to **Applications → VPN Portal**, and open **Settings** to complete initial setup.
 
 ---
 
@@ -139,33 +139,33 @@ All module capabilities can also be automated via `api-cli` on the NS8 cluster:
 
 ```bash
 # Read current configuration & live connection summary
-api-cli run module/vpn1/get-configuration --data '{}'
+api-cli run module/vpnportal1/get-configuration --data '{}'
 
 # Trigger an immediate AD/LDAP user & group synchronization
-api-cli run module/vpn1/sync-users --data '{}'
+api-cli run module/vpnportal1/sync-users --data '{}'
 
 # Provision a WireGuard device (with an optional static tunnel IP)
-api-cli run module/vpn1/create-peer --data '{
+api-cli run module/vpnportal1/create-peer --data '{
   "username": "jdoe",
   "device_name": "Admin-Laptop",
   "assigned_ip": "10.199.0.10"
 }'
 
 # List all synchronized users and roadwarrior devices
-api-cli run module/vpn1/list-peers --data '{}'
+api-cli run module/vpnportal1/list-peers --data '{}'
 
 # Reset a user's TOTP 2FA secret (helpdesk recovery)
-api-cli run module/vpn1/reset-user-totp --data '{"username": "jdoe"}'
+api-cli run module/vpnportal1/reset-user-totp --data '{"username": "jdoe"}'
 
 # Create a Site-to-Site WireGuard branch tunnel
-api-cli run module/vpn1/create-s2s-tunnel --data '{
+api-cli run module/vpnportal1/create-s2s-tunnel --data '{
   "name": "Branch-Munich",
   "remote_cidrs": ["192.168.20.0/24"],
   "remote_endpoint": "munich-gw.company.example:51820"
 }'
 
 # Query security and administrative audit log entries
-api-cli run module/vpn1/list-audit-logs --data '{"limit": 100, "username": "jdoe"}'
+api-cli run module/vpnportal1/list-audit-logs --data '{"limit": 100, "username": "jdoe"}'
 ```
 
 ---
@@ -190,7 +190,7 @@ REPOBASE=ghcr.io/bls-isp IMAGETAG=latest ./build-images.sh
 
 Builds both required images:
 1. `${REPOBASE}/vpn-controller:${IMAGETAG}` (`container/Containerfile`)
-2. `${REPOBASE}/vpn:${IMAGETAG}` (`Containerfile`)
+2. `${REPOBASE}/vpnportal:${IMAGETAG}` (`Containerfile`)
 
 ### Local Test & Audit Suite
 

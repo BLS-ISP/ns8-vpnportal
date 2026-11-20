@@ -117,8 +117,17 @@ def get_nft_table_name(module_id: str | None = None) -> str:
 def get_firewalld_zone_name(module_id: str | None = None) -> str:
     """Return the dedicated firewalld zone name (max 17 chars on RHEL/Rocky 9)."""
     mid = module_id or get_module_id()
-    sanitized = re.sub(r"[^a-zA-Z0-9_-]", "", mid)
-    return f"ns8vpn-{sanitized}"[:17]
+    sanitized = re.sub(r"[^a-zA-Z0-9_-]", "", mid) or "vpnportal1"
+    candidate = f"ns8vpn-{sanitized}"
+    if len(candidate) > 17:
+        m = re.search(r"(\d+)$", sanitized)
+        if m and len(m.group(1)) <= 6:
+            suffix = m.group(1)
+            prefix_len = 17 - len("ns8vpn-") - len(suffix)
+            candidate = f"ns8vpn-{sanitized[:prefix_len]}{suffix}"
+        else:
+            candidate = candidate[:17]
+    return candidate
 
 
 def get_firewalld_policy_name(module_id: str | None = None) -> str:

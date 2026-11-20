@@ -19,5 +19,5 @@
     "code_url": "https://github.com/BLS-ISP/ns8-vpnportal",
     "relnotes_url": "https://github.com/BLS-ISP/ns8-vpnportal/releases"
   },
-  "source": "ghcr.io/bls-isp/vpn"
+  "source": "ghcr.io/bls-isp/vpnportal"
 }

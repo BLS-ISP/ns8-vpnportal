@@ -320,6 +320,33 @@ def check_ui_rules(errors: list[str], notices: list[str]) -> None:
     notices.append(f"[OK] Verified {len(en_keys)} matching i18n keys across de & en translations.")
 
 
+def check_no_reserved_vpn_image_id(errors: list[str]) -> None:
+    """Forbid bare `/vpn` module image basename.
+
+    In ns8-core, `add-module` sets Redis STRING `node/<id>/default_instance/<image_id>`.
+    Meanwhile, `get-cluster-status/50read` runs `rdb.scan_iter('node/*/vpn')` and calls
+    `rdb.hgetall(...)`, which crashes with `WRONGTYPE` if `<image_id>` is `vpn`!
+    """
+    meta_path = REPO_ROOT / "ui" / "public" / "metadata.json"
+    if meta_path.is_file():
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        source = str(meta.get("source") or "").strip().rstrip("/")
+        if source.endswith("/vpn") or source == "vpn":
+            errors.append(
+                f"[NS8-RULE-6] metadata.json 'source' ({source}) must NOT use reserved basename 'vpn' "
+                "(collides with ns8-core rdb.scan_iter('node/*/vpn') -> Redis WRONGTYPE)."
+            )
+
+    build_sh = REPO_ROOT / "build-images.sh"
+    if build_sh.is_file():
+        btext = build_sh.read_text(encoding="utf-8", errors="replace")
+        if re.search(r'module_image="\$\{repobase\}/vpn"', btext):
+            errors.append(
+                "[NS8-RULE-6] build-images.sh module_image must NOT be '${repobase}/vpn' "
+                "(collides with ns8-core rdb.scan_iter('node/*/vpn') -> Redis WRONGTYPE)."
+            )
+
+
 def main() -> int:
     errors: list[str] = []
     notices: list[str] = []
@@ -330,6 +357,7 @@ def main() -> int:
     check_containerfile_and_lifecycle(errors)
     check_lf_line_endings(errors)
     check_ui_rules(errors, notices)
+    check_no_reserved_vpn_image_id(errors)
 
     for note in notices:
         print(note)
