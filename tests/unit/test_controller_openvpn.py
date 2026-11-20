@@ -157,7 +157,8 @@ async def test_openvpn_pki_encryption_profiles_auth_and_instant_kill(
         # Verify rendered `openvpn-server.conf` and `nftables` rules for `tun-vpn1`
         srv_conf = controller_settings.ovpn_server_conf_path.read_text(encoding="utf-8")
         assert "dev tun-vpn1" in srv_conf
-        assert "proto tcp-server" in srv_conf
+        expected_proto = "proto tcp6-server" if detect_host_ipv6_dualstack() else "proto tcp-server"
+        assert expected_proto in srv_conf
         assert "port 1194" in srv_conf
         assert "server 10.199.1.0 255.255.255.0" in srv_conf
         assert 'push "route 192.168.10.0 255.255.255.0"' in srv_conf
