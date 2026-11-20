@@ -222,6 +222,12 @@ bash tests/ns8_smoke_test.sh --endpoint vpn.test.lan
 
 ---
 
+## Data Privacy & Terms
+
+`ns8-vpn` runs 100% self-hosted on your own NethServer 8 infrastructure without external cloud telemetry, phone-home calls, or third-party CDN assets. All cryptographic keys, TOTP secrets, and PKI material remain encrypted at rest on your server under your control. Provided "as is" without warranty under the terms of the `GPL-3.0-or-later` license.
+
+---
+
 ## License
 
 Copyright (C) 2026 BLS-ISP and contributors.
