@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+#
+# Initialize state directories and install rootful systemd unit during restore-module
+#
+
+set -eu
+
+cd "$(dirname "$0")"
+exec sh ../../update-module.d/10setup "$@"

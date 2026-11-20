@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+#
+# Stop, disable, and remove the rootful systemd service unit for MODULE_ID
+#
+
+set -eu
+
+MODULE_ID="${MODULE_ID:?MODULE_ID environment variable is required}"
+
+systemctl disable --now "${MODULE_ID}.service" 2>/dev/null || true
+rm -f "/etc/systemd/system/${MODULE_ID}.service"
+systemctl daemon-reload
+systemctl reset-failed "${MODULE_ID}.service" 2>/dev/null || true

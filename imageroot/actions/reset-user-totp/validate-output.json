@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "reset-user-totp output",
+  "type": "object",
+  "required": [
+    "reset",
+    "username"
+  ],
+  "properties": {
+    "reset": {
+      "type": "boolean"
+    },
+    "username": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "list-domain-groups input",
+  "type": "object",
+  "required": [
+    "user_domain"
+  ],
+  "properties": {
+    "user_domain": {
+      "type": "string",
+      "description": "NS8 user domain name to query groups from"
+    }
+  }
+}

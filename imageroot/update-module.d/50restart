@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+#
+# Restart running VPN controller service after module image update
+#
+
+set -eu
+
+MODULE_ID="${MODULE_ID:?MODULE_ID environment variable is required}"
+
+if systemctl is-active --quiet "${MODULE_ID}.service"; then
+    systemctl restart "${MODULE_ID}.service"
+fi

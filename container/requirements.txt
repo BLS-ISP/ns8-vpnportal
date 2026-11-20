@@ -1,0 +1,7 @@
+fastapi>=0.110.0
+uvicorn>=0.29.0
+pydantic>=2.6.0
+cryptography>=42.0.0
+ldap3>=2.9.1
+segno>=1.6.1
+pyotp>=2.9.0

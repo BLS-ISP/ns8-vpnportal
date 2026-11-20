@@ -1,0 +1,40 @@
+FROM docker.io/library/python:3.12-slim-bookworm
+
+LABEL org.opencontainers.image.title="ns8-vpn-controller" \
+      org.opencontainers.image.description="NethServer 8 Roadwarrior & Site-to-Site VPN Controller (WireGuard + OpenVPN + TOTP Portal + AD/LDAP Sync)" \
+      org.opencontainers.image.licenses="GPL-3.0-or-later"
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    STATE_DIR=/state \
+    TCP_PORT=8080
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        wireguard-tools \
+        openvpn \
+        iproute2 \
+        nftables \
+        iptables \
+        kmod \
+        sqlite3 \
+        procps \
+        ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+COPY app /app/app
+COPY openvpn_auth.py /app/openvpn_auth.py
+COPY entrypoint.sh /entrypoint.sh
+
+RUN find /app -type f \( -name "*.py" -o -name "*.html" -o -name "*.css" -o -name "*.js" \) -exec sed -i 's/\r$//' {} + \
+    && sed -i 's/\r$//' /entrypoint.sh \
+    && chmod 0755 /entrypoint.sh /app/openvpn_auth.py \
+    && mkdir -p /state/data /state/secrets /state/run \
+    && chmod 0700 /state/data /state/secrets /state/run
+
+ENTRYPOINT ["/entrypoint.sh"]

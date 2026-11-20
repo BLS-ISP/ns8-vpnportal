@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "list-audit-logs input",
+  "type": "object",
+  "properties": {
+    "limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000,
+      "description": "Maximum number of audit log entries to return (1..1000)"
+    },
+    "event_type": {
+      "type": "string",
+      "maxLength": 128,
+      "description": "Optional event_type filter"
+    },
+    "username": {
+      "type": "string",
+      "maxLength": 128,
+      "description": "Optional username filter"
+    }
+  }
+}

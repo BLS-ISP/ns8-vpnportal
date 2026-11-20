@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+"""Return active module configuration merged with host LAN and cluster WireGuard metadata."""
+
+from __future__ import annotations
+
+import json
+import os
+import sys
+
+_PYPKG = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "pypkg"))
+if _PYPKG not in sys.path:
+    sys.path.insert(0, _PYPKG)
+
+import vpn_helpers
+
+module_id = vpn_helpers.get_module_id()
+state_dir = vpn_helpers.get_state_dir(module_id)
+sock_path = vpn_helpers.get_admin_socket_path(module_id, state_dir=state_dir)
+
+config: dict | None = None
+if sock_path.exists():
+    try:
+        resp = vpn_helpers.admin_api_request("GET", "/api/v1/admin/config", socket_path=sock_path, timeout=5.0)
+        if isinstance(resp, dict):
+            config = resp
+    except vpn_helpers.AdminApiError:
+        config = None
+
+if config is None:
+    config = vpn_helpers.build_fallback_configuration(module_id)
+
+host_lan_ip, host_lan_cidr = vpn_helpers.detect_host_lan(module_id)
+cluster_wg_cidr, cluster_wg_port = vpn_helpers.detect_cluster_wg()
+
+output = {
+    **config,
+    "host_lan_ip": host_lan_ip,
+    "host_lan_cidr": host_lan_cidr,
+    "cluster_wg_cidr": cluster_wg_cidr,
+    "cluster_wg_port": cluster_wg_port,
+}
+
+json.dump(output, sys.stdout)

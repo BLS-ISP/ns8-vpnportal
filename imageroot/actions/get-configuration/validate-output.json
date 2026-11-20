@@ -1,0 +1,214 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "get-configuration output",
+  "type": "object",
+  "required": [
+    "configured",
+    "endpoint_host",
+    "wg_port",
+    "wg_network",
+    "tunnel_mode",
+    "allowed_cidrs",
+    "dns_servers",
+    "dns_search_domain",
+    "wg_mtu",
+    "persistent_keepalive",
+    "nat_enabled",
+    "user_domain",
+    "vpn_group",
+    "max_devices_per_user",
+    "sync_interval_minutes",
+    "portal_enabled",
+    "portal_domain",
+    "portal_lets_encrypt",
+    "portal_http2https",
+    "portal_totp_mode",
+    "ovpn_enabled",
+    "ovpn_proto",
+    "ovpn_port",
+    "ovpn_public_port",
+    "ovpn_network",
+    "ovpn_totp_required",
+    "server_public_key",
+    "interface_name",
+    "ovpn_interface_name",
+    "summary",
+    "host_lan_ip",
+    "host_lan_cidr",
+    "cluster_wg_cidr",
+    "cluster_wg_port"
+  ],
+  "properties": {
+    "configured": {
+      "type": "boolean"
+    },
+    "endpoint_host": {
+      "type": "string"
+    },
+    "wg_port": {
+      "type": "integer"
+    },
+    "wg_network": {
+      "type": "string"
+    },
+    "tunnel_mode": {
+      "type": "string",
+      "enum": [
+        "split",
+        "full"
+      ]
+    },
+    "allowed_cidrs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dns_servers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dns_search_domain": {
+      "type": "string"
+    },
+    "wg_mtu": {
+      "type": "integer"
+    },
+    "persistent_keepalive": {
+      "type": "integer"
+    },
+    "nat_enabled": {
+      "type": "boolean"
+    },
+    "user_domain": {
+      "type": "string"
+    },
+    "vpn_group": {
+      "type": "string"
+    },
+    "max_devices_per_user": {
+      "type": "integer"
+    },
+    "sync_interval_minutes": {
+      "type": "integer"
+    },
+    "portal_enabled": {
+      "type": "boolean"
+    },
+    "portal_domain": {
+      "type": "string"
+    },
+    "portal_lets_encrypt": {
+      "type": "boolean"
+    },
+    "portal_http2https": {
+      "type": "boolean"
+    },
+    "portal_totp_mode": {
+      "type": "string",
+      "enum": [
+        "disabled",
+        "optional",
+        "required"
+      ]
+    },
+    "ovpn_enabled": {
+      "type": "boolean"
+    },
+    "ovpn_proto": {
+      "type": "string",
+      "enum": [
+        "tcp",
+        "udp"
+      ]
+    },
+    "ovpn_port": {
+      "type": "integer"
+    },
+    "ovpn_public_port": {
+      "type": "integer"
+    },
+    "ovpn_network": {
+      "type": "string"
+    },
+    "ovpn_totp_required": {
+      "type": "boolean"
+    },
+    "server_public_key": {
+      "type": "string"
+    },
+    "interface_name": {
+      "type": "string"
+    },
+    "ovpn_interface_name": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "authorized_users",
+        "total_peers",
+        "active_peers",
+        "online_peers",
+        "online_ovpn_clients",
+        "s2s_tunnels",
+        "active_s2s_tunnels",
+        "last_synced_at",
+        "last_sync_status",
+        "last_sync_error"
+      ],
+      "properties": {
+        "authorized_users": {
+          "type": "integer"
+        },
+        "total_peers": {
+          "type": "integer"
+        },
+        "active_peers": {
+          "type": "integer"
+        },
+        "online_peers": {
+          "type": "integer"
+        },
+        "online_ovpn_clients": {
+          "type": "integer"
+        },
+        "s2s_tunnels": {
+          "type": "integer"
+        },
+        "active_s2s_tunnels": {
+          "type": "integer"
+        },
+        "last_synced_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "last_sync_status": {
+          "type": "string"
+        },
+        "last_sync_error": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "host_lan_ip": {
+      "type": "string"
+    },
+    "host_lan_cidr": {
+      "type": "string"
+    },
+    "cluster_wg_cidr": {
+      "type": "string"
+    },
+    "cluster_wg_port": {
+      "type": "integer"
+    }
+  }
+}

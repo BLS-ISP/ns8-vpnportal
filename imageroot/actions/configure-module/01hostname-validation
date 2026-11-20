@@ -1,0 +1,36 @@
+#!/usr/bin/env python3
+"""Validate Traefik virtual host collisions when Self-Service Portal domain changes."""
+
+from __future__ import annotations
+
+import json
+import os
+import sys
+
+import agent  # type: ignore[import-not-found]
+
+raw = sys.stdin.read().strip()
+data = json.loads(raw) if raw else {}
+
+portal_enabled = bool(data.get("portal_enabled", False))
+portal_domain = str(data.get("portal_domain") or "").strip().lower()
+
+prev_enabled = os.environ.get("PORTAL_ENABLED", "false").strip().lower() == "true"
+prev_domain = os.environ.get("PORTAL_DOMAIN", "").strip().lower()
+
+if portal_enabled and portal_domain:
+    if portal_domain != prev_domain or not prev_enabled:
+        if agent.http_route_in_use(domain=portal_domain):
+            agent.set_status("validation-failed")
+            json.dump(
+                [
+                    {
+                        "field": "portal_domain",
+                        "parameter": "portal_domain",
+                        "value": portal_domain,
+                        "error": "route_already_in_use",
+                    }
+                ],
+                sys.stdout,
+            )
+            sys.exit(2)

@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+"""Query LDAP/AD groups for a given NS8 user domain via Ldapproxy."""
+
+from __future__ import annotations
+
+import json
+import os
+import sys
+
+_PYPKG = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "pypkg"))
+if _PYPKG not in sys.path:
+    sys.path.insert(0, _PYPKG)
+
+import vpn_helpers
+
+raw = sys.stdin.read().strip()
+data = json.loads(raw) if raw else {}
+user_domain = str(data.get("user_domain") or data.get("domain") or "").strip()
+
+groups = vpn_helpers.query_domain_groups(user_domain)
+json.dump({"groups": groups}, sys.stdout)

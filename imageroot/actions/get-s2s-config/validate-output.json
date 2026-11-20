@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "get-s2s-config output",
+  "type": "object",
+  "required": [
+    "tunnel_id",
+    "name",
+    "config_text",
+    "has_private_key"
+  ],
+  "properties": {
+    "tunnel_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "config_text": {
+      "type": "string"
+    },
+    "has_private_key": {
+      "type": "boolean"
+    }
+  }
+}

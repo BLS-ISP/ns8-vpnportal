@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "get-user-ovpn output",
+  "type": "object",
+  "required": [
+    "username",
+    "filename",
+    "ovpn_text",
+    "totp_required_on_connect"
+  ],
+  "properties": {
+    "username": {
+      "type": "string"
+    },
+    "filename": {
+      "type": "string"
+    },
+    "ovpn_text": {
+      "type": "string"
+    },
+    "totp_required_on_connect": {
+      "type": "boolean"
+    }
+  }
+}

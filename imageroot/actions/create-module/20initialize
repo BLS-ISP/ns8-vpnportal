@@ -1,0 +1,77 @@
+#!/usr/bin/env python3
+"""Initialize default NS8 module environment for ns8-vpn."""
+
+from __future__ import annotations
+
+import os
+import sys
+
+_PYPKG = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "pypkg"))
+if _PYPKG not in sys.path:
+    sys.path.insert(0, _PYPKG)
+
+import agent  # type: ignore[import-not-found]
+import vpn_helpers
+
+module_id = vpn_helpers.get_module_id()
+state_dir = vpn_helpers.get_state_dir(module_id)
+
+cluster_cidr, cluster_port = vpn_helpers.detect_cluster_wg()
+wg_port = vpn_helpers.pick_free_wg_port(
+    preferred=vpn_helpers.DEFAULT_WG_PORT,
+    cluster_wg_port=cluster_port,
+)
+wg_network = vpn_helpers.pick_free_wg_network(
+    preferred=vpn_helpers.DEFAULT_WG_NETWORK,
+    cluster_wg_cidr=cluster_cidr,
+)
+ovpn_port = vpn_helpers.pick_free_ovpn_port(
+    preferred=vpn_helpers.DEFAULT_OVPN_PORT,
+    proto=vpn_helpers.DEFAULT_OVPN_PROTO,
+    wg_port=wg_port,
+    cluster_wg_port=cluster_port,
+)
+ovpn_network = vpn_helpers.pick_free_wg_network(
+    preferred=vpn_helpers.DEFAULT_OVPN_NETWORK,
+    cluster_wg_cidr=cluster_cidr,
+    extra_forbidden=[wg_network],
+)
+
+_, host_lan_cidr = vpn_helpers.detect_host_lan(module_id)
+
+if not os.environ.get("VPN_CONTROLLER_IMAGE"):
+    agent.set_env("VPN_CONTROLLER_IMAGE", "ghcr.io/nethserver/vpn-controller:latest")
+
+agent.set_env("CONFIGURED", "false")
+agent.set_env("WG_INTERFACE", vpn_helpers.get_wg_interface_name(module_id))
+agent.set_env("OVPN_INTERFACE", vpn_helpers.get_ovpn_interface_name(module_id))
+agent.set_env("ENDPOINT_HOST", "")
+agent.set_env("WG_PORT", str(wg_port))
+agent.set_env("WG_NETWORK", wg_network)
+agent.set_env("TUNNEL_MODE", "split")
+agent.set_env("ALLOWED_CIDRS", host_lan_cidr)
+agent.set_env("DNS_SERVERS", "")
+agent.set_env("DNS_SEARCH_DOMAIN", "")
+agent.set_env("WG_MTU", str(vpn_helpers.DEFAULT_WG_MTU))
+agent.set_env("PERSISTENT_KEEPALIVE", str(vpn_helpers.DEFAULT_PERSISTENT_KEEPALIVE))
+agent.set_env("NAT_ENABLED", "true")
+agent.set_env("USER_DOMAIN", "")
+agent.set_env("VPN_GROUP", "")
+agent.set_env("MAX_DEVICES_PER_USER", str(vpn_helpers.DEFAULT_MAX_DEVICES_PER_USER))
+agent.set_env("SYNC_INTERVAL_MINUTES", str(vpn_helpers.DEFAULT_SYNC_INTERVAL_MINUTES))
+agent.set_env("PORTAL_ENABLED", "false")
+agent.set_env("PORTAL_DOMAIN", "")
+agent.set_env("PORTAL_LETS_ENCRYPT", "false")
+agent.set_env("PORTAL_HTTP2HTTPS", "true")
+agent.set_env("PORTAL_TOTP_MODE", vpn_helpers.DEFAULT_PORTAL_TOTP_MODE)
+agent.set_env("OVPN_ENABLED", "false")
+agent.set_env("OVPN_PROTO", vpn_helpers.DEFAULT_OVPN_PROTO)
+agent.set_env("OVPN_PORT", str(ovpn_port))
+agent.set_env("OVPN_PUBLIC_PORT", str(ovpn_port))
+agent.set_env("OVPN_NETWORK", ovpn_network)
+agent.set_env("OVPN_TOTP_REQUIRED", "false")
+agent.set_env("CLUSTER_WG_CIDR", cluster_cidr)
+agent.set_env("CLUSTER_WG_PORT", str(cluster_port))
+agent.dump_env()
+
+vpn_helpers.write_ldap_secret("", "", state_dir=state_dir)

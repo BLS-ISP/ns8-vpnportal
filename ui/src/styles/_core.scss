@@ -1,0 +1,247 @@
+@import "./variables";
+
+html,
+body {
+  background-color: $ns-ui-background;
+  color: #161616;
+  margin: 0;
+  padding: 0;
+}
+
+.ns8-app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.app-content {
+  flex: 1;
+  min-width: 0;
+  padding-bottom: 3rem;
+
+  @media (min-width: $breakpoint-large) {
+    margin-left: $app-side-nav-width;
+  }
+}
+
+.ns8-instance-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #ffffff;
+  border-bottom: 1px solid $ns-border-subtle;
+  padding: 0.75rem 1rem;
+
+  @media (min-width: $breakpoint-large) {
+    padding: 0.75rem 2rem;
+  }
+
+  .instance-title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .mobile-menu-btn {
+    @media (min-width: $breakpoint-large) {
+      display: none;
+    }
+  }
+
+  .instance-badge {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #161616;
+  }
+
+  .instance-id-sub {
+    font-size: 0.8125rem;
+    color: $ns-text-secondary;
+  }
+}
+
+.page-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  .page-subtitle {
+    margin-top: 0.35rem;
+    color: $ns-text-secondary;
+    max-width: 52rem;
+    line-height: 1.45;
+  }
+}
+
+// NS8 standard spacing utilities
+.mg-top-xs {
+  margin-top: 0.25rem !important;
+}
+.mg-top-sm {
+  margin-top: 0.5rem !important;
+}
+.mg-top-md {
+  margin-top: 1rem !important;
+}
+.mg-top-lg {
+  margin-top: 1.5rem !important;
+}
+.mg-bottom-xs {
+  margin-bottom: 0.25rem !important;
+}
+.mg-bottom-sm {
+  margin-bottom: 0.5rem !important;
+}
+.mg-bottom-md {
+  margin-bottom: 1rem !important;
+}
+.mg-bottom-lg {
+  margin-bottom: 1.5rem !important;
+}
+.mg-right-xs {
+  margin-right: 0.25rem !important;
+}
+.mg-right-sm {
+  margin-right: 0.5rem !important;
+}
+.mg-right-md {
+  margin-right: 1rem !important;
+}
+.mg-left-sm {
+  margin-left: 0.5rem !important;
+}
+
+// NS8 status colors expected by ns8-ui-lib components
+.ns-success,
+.success-icon {
+  color: $ns-support-success;
+  fill: $ns-support-success;
+}
+
+.ns-error,
+.error-icon {
+  color: $ns-support-error;
+  fill: $ns-support-error;
+}
+
+.ns-warning {
+  color: $ns-support-warning;
+}
+
+.warning-icon {
+  color: $ns-support-warning-icon;
+  fill: $ns-support-warning-icon;
+}
+
+.ns-progress-bar {
+  .line,
+  .subline,
+  .indeterminate-line {
+    background-color: $ns-brand-primary;
+  }
+}
+
+// Card grids and forms
+.ns-card {
+  height: 100%;
+  background-color: $ns-tile-background;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  gap: 1rem;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 1rem;
+}
+
+.kpi-tile {
+  background: #f8f9fb;
+  border: 1px solid $ns-border-subtle;
+  border-left: 4px solid $ns-brand-primary;
+  padding: 0.875rem 1rem;
+
+  &.kpi-online {
+    border-left-color: $ns-support-success;
+  }
+
+  .kpi-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: $ns-text-secondary;
+    margin-bottom: 0.35rem;
+  }
+
+  .kpi-value {
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: #161616;
+  }
+}
+
+.maxwidth {
+  max-width: 38rem;
+}
+
+.label-with-tooltip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.key-value-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 0.875rem 1.5rem;
+
+  .kv-item {
+    .kv-label {
+      font-size: 0.75rem;
+      color: $ns-text-secondary;
+      margin-bottom: 0.25rem;
+    }
+
+    .kv-value {
+      font-size: 0.9375rem;
+      font-weight: 500;
+      word-break: break-word;
+    }
+  }
+}
+
+.monospace {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    monospace;
+}
+
+.connection-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 500;
+
+  .dot {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+
+    &.online {
+      background-color: $ns-support-success;
+      box-shadow: 0 0 0 3px rgba(25, 128, 56, 0.18);
+    }
+
+    &.offline {
+      background-color: #8d8d8d;
+    }
+  }
+}

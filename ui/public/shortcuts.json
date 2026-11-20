@@ -1,0 +1,32 @@
+[
+  {
+    "path": "/status",
+    "i18nKey": "status.title",
+    "keywords": ["status", "vpn", "wireguard", "openvpn", "portal", "overview", "uebersicht"]
+  },
+  {
+    "path": "/peers",
+    "i18nKey": "peers.title",
+    "keywords": ["peers", "users", "devices", "qrcode", "totp", "2fa", "ovpn", "static-ip", "benutzer", "geraete"]
+  },
+  {
+    "path": "/s2s",
+    "i18nKey": "s2s.title",
+    "keywords": ["site-to-site", "s2s", "branch", "fritzbox", "standort", "kopplung", "tunnel"]
+  },
+  {
+    "path": "/audit-log",
+    "i18nKey": "audit.title",
+    "keywords": ["audit", "logs", "security", "events", "compliance", "dsgvo", "csv", "protokoll", "sicherheit"]
+  },
+  {
+    "path": "/settings",
+    "i18nKey": "settings.title",
+    "keywords": ["settings", "configuration", "ldap", "ad", "portal", "openvpn", "split-tunnel", "dns", "einstellungen"]
+  },
+  {
+    "path": "/about",
+    "i18nKey": "about.title",
+    "keywords": ["about", "info", "version"]
+  }
+]

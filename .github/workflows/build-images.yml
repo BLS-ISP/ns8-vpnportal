@@ -1,0 +1,75 @@
+name: Build Images
+
+on:
+  push:
+    branches: ["main", "master"]
+    tags: ["v*"]
+  pull_request:
+    branches: ["main", "master"]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build:
+    name: Build & Publish NS8 Images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python & Run NS8 Audit
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify NS8 Rules
+        run: python tests/verify_ns8_rules.py
+
+      - name: Determine repository owner & tag
+        id: meta
+        run: |
+          owner_lc="$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
+          echo "repobase=${REGISTRY}/${owner_lc}" >> "${GITHUB_OUTPUT}"
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            echo "imagetag=${GITHUB_REF_NAME#v}" >> "${GITHUB_OUTPUT}"
+          elif [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+            echo "imagetag=pr-${GITHUB_EVENT_NUMBER}" >> "${GITHUB_OUTPUT}"
+          else
+            echo "imagetag=latest" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Build container images
+        id: build-images
+        env:
+          REPOBASE: ${{ steps.meta.outputs.repobase }}
+          IMAGETAG: ${{ steps.meta.outputs.imagetag }}
+        run: bash ./build-images.sh
+
+      - name: Log in to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Authenticate Podman with GHCR
+        if: github.event_name != 'pull_request'
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          printf '%s\n' "${GHCR_TOKEN}" | podman login "${REGISTRY}" -u "${GITHUB_ACTOR}" --password-stdin
+
+      - name: Push images to GHCR
+        if: github.event_name != 'pull_request'
+        env:
+          REPOBASE: ${{ steps.meta.outputs.repobase }}
+          IMAGETAG: ${{ steps.meta.outputs.imagetag }}
+        run: |
+          podman push "${REPOBASE}/vpn-controller:${IMAGETAG}"
+          podman push "${REPOBASE}/vpn:${IMAGETAG}"

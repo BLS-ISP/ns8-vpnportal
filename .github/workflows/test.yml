@@ -1,0 +1,65 @@
+name: Test & NS8 Audit
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
+  workflow_dispatch:
+
+jobs:
+  python-tests:
+    name: Python Unit Tests & NS8 Rule Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f container/requirements.txt ]; then
+            pip install -r container/requirements.txt
+          fi
+          pip install pytest pytest-asyncio httpx jsonschema pyotp
+
+      - name: Run NS8 Architecture & Rule Audit
+        run: python tests/verify_ns8_rules.py
+
+      - name: Run pytest suite
+        run: pytest -v
+
+  cockpit-ui:
+    name: Cockpit UI Lint & Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install UI dependencies
+        working-directory: ui
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Lint UI
+        working-directory: ui
+        run: npm run lint
+
+      - name: Build UI
+        working-directory: ui
+        run: npm run build

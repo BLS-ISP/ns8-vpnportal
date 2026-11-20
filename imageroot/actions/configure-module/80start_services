@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+"""Ensure systemd service is active and push updated configuration over admin.sock."""
+
+from __future__ import annotations
+
+import json
+import os
+import sys
+
+_PYPKG = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "pypkg"))
+if _PYPKG not in sys.path:
+    sys.path.insert(0, _PYPKG)
+
+import vpn_helpers
+
+module_id = vpn_helpers.get_module_id()
+state_dir = vpn_helpers.get_state_dir(module_id)
+service_name = f"{module_id}.service"
+
+raw = sys.stdin.read().strip()
+desired_file = state_dir / "secrets" / "desired_config.json"
+if desired_file.is_file():
+    cfg = json.loads(desired_file.read_text(encoding="utf-8"))
+else:
+    cfg = vpn_helpers.normalize_config_input(json.loads(raw) if raw else {})
+
+active_check = vpn_helpers.run_cmd(["systemctl", "is-active", "--quiet", service_name])
+if active_check.returncode == 0:
+    vpn_helpers.run_cmd(["systemctl", "enable", service_name], check=True)
+else:
+    vpn_helpers.run_cmd(["systemctl", "enable", "--now", service_name], check=True)
+
+sock_path = vpn_helpers.get_admin_socket_path(module_id, state_dir=state_dir)
+if not vpn_helpers.wait_for_admin_socket(socket_path=sock_path, timeout=30.0):
+    print(f"Error: vpn-controller admin socket {sock_path} did not become ready in time", file=sys.stderr)
+    sys.exit(1)
+
+vpn_helpers.admin_api_request("PUT", "/api/v1/admin/config", payload=cfg, socket_path=sock_path, timeout=30.0)
+vpn_helpers.admin_api_request("POST", "/api/v1/admin/reconcile", payload={}, socket_path=sock_path, timeout=30.0)

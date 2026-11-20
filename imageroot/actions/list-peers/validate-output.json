@@ -1,0 +1,177 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "list-peers output",
+  "type": "object",
+  "required": [
+    "users",
+    "peers",
+    "summary"
+  ],
+  "properties": {
+    "users": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "username",
+          "ldap_active",
+          "in_vpn_group",
+          "authorized",
+          "peer_count",
+          "totp_enrolled"
+        ],
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "domain": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "display_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ldap_active": {
+            "type": "boolean"
+          },
+          "in_vpn_group": {
+            "type": "boolean"
+          },
+          "authorized": {
+            "type": "boolean"
+          },
+          "peer_count": {
+            "type": "integer"
+          },
+          "totp_enrolled": {
+            "type": "boolean"
+          },
+          "last_synced_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "peers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "username",
+          "protocol",
+          "device_name",
+          "assigned_ip",
+          "public_key",
+          "admin_enabled",
+          "user_authorized",
+          "effective_active",
+          "online",
+          "rx_bytes",
+          "tx_bytes",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "protocol": {
+            "type": "string"
+          },
+          "device_name": {
+            "type": "string"
+          },
+          "assigned_ip": {
+            "type": "string"
+          },
+          "public_key": {
+            "type": "string"
+          },
+          "admin_enabled": {
+            "type": "boolean"
+          },
+          "user_authorized": {
+            "type": "boolean"
+          },
+          "effective_active": {
+            "type": "boolean"
+          },
+          "online": {
+            "type": "boolean"
+          },
+          "rx_bytes": {
+            "type": "integer"
+          },
+          "tx_bytes": {
+            "type": "integer"
+          },
+          "last_handshake_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "last_endpoint": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "authorized_users",
+        "total_peers",
+        "active_peers",
+        "online_peers",
+        "max_devices_per_user"
+      ],
+      "properties": {
+        "authorized_users": {
+          "type": "integer"
+        },
+        "total_peers": {
+          "type": "integer"
+        },
+        "active_peers": {
+          "type": "integer"
+        },
+        "online_peers": {
+          "type": "integer"
+        },
+        "max_devices_per_user": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

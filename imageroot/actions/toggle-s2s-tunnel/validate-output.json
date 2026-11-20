@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "toggle-s2s-tunnel output",
+  "type": "object",
+  "required": [
+    "tunnel"
+  ],
+  "properties": {
+    "tunnel": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "enabled",
+        "assigned_ip",
+        "public_key",
+        "remote_cidrs"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "assigned_ip": {
+          "type": "string"
+        },
+        "public_key": {
+          "type": "string"
+        },
+        "remote_cidrs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

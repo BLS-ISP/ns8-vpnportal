@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+"""Configure initial public UDP port and isolated firewalld zone/policy."""
+
+from __future__ import annotations
+
+import os
+import sys
+
+_PYPKG = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "pypkg"))
+if _PYPKG not in sys.path:
+    sys.path.insert(0, _PYPKG)
+
+import agent  # type: ignore[import-not-found]
+import vpn_helpers
+
+module_id = vpn_helpers.get_module_id()
+wg_port = int(os.environ.get("WG_PORT") or vpn_helpers.DEFAULT_WG_PORT)
+cluster_cidr = os.environ.get("CLUSTER_WG_CIDR") or vpn_helpers.DEFAULT_CLUSTER_WG_CIDR
+
+vpn_helpers.configure_host_firewall(
+    agent,
+    module_id,
+    wg_port,
+    cluster_wg_cidr=cluster_cidr,
+)

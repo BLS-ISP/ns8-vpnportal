@@ -1,0 +1,147 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "configure-module input",
+  "description": "Configuration parameters for NethServer 8 Business Roadwarrior VPN (ns8-vpn)",
+  "type": "object",
+  "required": [
+    "endpoint_host",
+    "wg_port",
+    "tunnel_mode"
+  ],
+  "properties": {
+    "endpoint_host": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Public FQDN, DDNS hostname, or static public IP address reachable by VPN clients"
+    },
+    "wg_port": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 65535,
+      "description": "Public UDP port for WireGuard roadwarrior connections (must not be 55820)"
+    },
+    "wg_network": {
+      "type": "string",
+      "description": "WireGuard IPv4 transfer subnet CIDR (e.g. 10.199.0.0/24)"
+    },
+    "tunnel_mode": {
+      "type": "string",
+      "enum": [
+        "split",
+        "full"
+      ],
+      "description": "Routing mode: split (internal networks only) or full (0.0.0.0/0)"
+    },
+    "allowed_cidrs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Internal destination IPv4 CIDRs permitted in split-tunnel mode"
+    },
+    "dns_servers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "DNS server IPv4 addresses pushed to VPN clients"
+    },
+    "dns_search_domain": {
+      "type": "string",
+      "description": "Optional internal DNS search domain (e.g. ad.company.lan)"
+    },
+    "wg_mtu": {
+      "type": "integer",
+      "minimum": 1280,
+      "maximum": 1500,
+      "description": "WireGuard tunnel MTU (default 1380 for PPPoE/FritzBox compatibility)"
+    },
+    "persistent_keepalive": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 300,
+      "description": "WireGuard PersistentKeepalive interval in seconds"
+    },
+    "nat_enabled": {
+      "type": "boolean",
+      "description": "Enable SNAT masquerading from VPN transfer subnet towards LAN/WAN"
+    },
+    "user_domain": {
+      "type": "string",
+      "description": "Bound NS8 user domain name (Samba AD or OpenLDAP via ldapproxy)"
+    },
+    "vpn_group": {
+      "type": "string",
+      "description": "AD/LDAP group name authorized for VPN dial-in"
+    },
+    "max_devices_per_user": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 50,
+      "description": "Maximum number of concurrent registered devices per user"
+    },
+    "sync_interval_minutes": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1440,
+      "description": "Background AD/LDAP synchronization interval in minutes"
+    },
+    "portal_enabled": {
+      "type": "boolean",
+      "description": "Expose the Self-Service Portal behind ns8-traefik"
+    },
+    "portal_domain": {
+      "type": "string",
+      "description": "Virtual host FQDN for the Self-Service Portal"
+    },
+    "portal_lets_encrypt": {
+      "type": "boolean",
+      "description": "Request automatic Let's Encrypt certificate on Traefik"
+    },
+    "portal_http2https": {
+      "type": "boolean",
+      "description": "Redirect HTTP to HTTPS on Traefik"
+    },
+    "portal_totp_mode": {
+      "type": "string",
+      "enum": [
+        "disabled",
+        "optional",
+        "required"
+      ],
+      "description": "Self-Service Portal TOTP 2FA policy"
+    },
+    "ovpn_enabled": {
+      "type": "boolean",
+      "description": "Enable OpenVPN TCP/UDP hotel/guest-network fallback server"
+    },
+    "ovpn_proto": {
+      "type": "string",
+      "enum": [
+        "tcp",
+        "udp"
+      ],
+      "description": "OpenVPN transport protocol"
+    },
+    "ovpn_port": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 65535,
+      "description": "Local OpenVPN listen port on the NS8 node (e.g. 1194)"
+    },
+    "ovpn_public_port": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 65535,
+      "description": "External WAN/router port written into .ovpn client profiles (e.g. 443 or 1194)"
+    },
+    "ovpn_network": {
+      "type": "string",
+      "description": "OpenVPN IPv4 transfer subnet CIDR (e.g. 10.199.1.0/24)"
+    },
+    "ovpn_totp_required": {
+      "type": "boolean",
+      "description": "Require trailing 6-digit TOTP code appended to AD/LDAP password on OpenVPN connect"
+    }
+  }
+}

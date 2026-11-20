@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+"""Persist module environment, bind NS8 user domain, write ldap.json, and configure firewall/Traefik."""
+
+from __future__ import annotations
+
+import json
+import os
+import sys
+
+_PYPKG = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "pypkg"))
+if _PYPKG not in sys.path:
+    sys.path.insert(0, _PYPKG)
+
+import agent  # type: ignore[import-not-found]
+import vpn_helpers
+
+raw = sys.stdin.read().strip()
+data = json.loads(raw) if raw else {}
+cfg = vpn_helpers.normalize_config_input(data)
+
+module_id = vpn_helpers.get_module_id()
+state_dir = vpn_helpers.get_state_dir(module_id)
+cluster_cidr, cluster_port = vpn_helpers.detect_cluster_wg()
+
+previously_portal_enabled = os.environ.get("PORTAL_ENABLED", "false").strip().lower() == "true"
+
+agent.set_env("CONFIGURED", "true")
+agent.set_env("WG_INTERFACE", vpn_helpers.get_wg_interface_name(module_id))
+agent.set_env("OVPN_INTERFACE", vpn_helpers.get_ovpn_interface_name(module_id))
+agent.set_env("ENDPOINT_HOST", cfg["endpoint_host"])
+agent.set_env("WG_PORT", str(cfg["wg_port"]))
+agent.set_env("WG_NETWORK", cfg["wg_network"])
+agent.set_env("TUNNEL_MODE", cfg["tunnel_mode"])
+agent.set_env("ALLOWED_CIDRS", ",".join(cfg["allowed_cidrs"]))
+agent.set_env("DNS_SERVERS", ",".join(cfg["dns_servers"]))
+agent.set_env("DNS_SEARCH_DOMAIN", cfg["dns_search_domain"])
+agent.set_env("WG_MTU", str(cfg["wg_mtu"]))
+agent.set_env("PERSISTENT_KEEPALIVE", str(cfg["persistent_keepalive"]))
+agent.set_env("NAT_ENABLED", "true" if cfg["nat_enabled"] else "false")
+agent.set_env("USER_DOMAIN", cfg["user_domain"])
+agent.set_env("VPN_GROUP", cfg["vpn_group"])
+agent.set_env("MAX_DEVICES_PER_USER", str(cfg["max_devices_per_user"]))
+agent.set_env("SYNC_INTERVAL_MINUTES", str(cfg["sync_interval_minutes"]))
+agent.set_env("PORTAL_ENABLED", "true" if cfg["portal_enabled"] else "false")
+agent.set_env("PORTAL_DOMAIN", cfg["portal_domain"])
+agent.set_env("PORTAL_LETS_ENCRYPT", "true" if cfg["portal_lets_encrypt"] else "false")
+agent.set_env("PORTAL_HTTP2HTTPS", "true" if cfg["portal_http2https"] else "false")
+agent.set_env("PORTAL_TOTP_MODE", cfg["portal_totp_mode"])
+agent.set_env("OVPN_ENABLED", "true" if cfg["ovpn_enabled"] else "false")
+agent.set_env("OVPN_PROTO", cfg["ovpn_proto"])
+agent.set_env("OVPN_PORT", str(cfg["ovpn_port"]))
+agent.set_env("OVPN_PUBLIC_PORT", str(cfg["ovpn_public_port"]))
+agent.set_env("OVPN_NETWORK", cfg["ovpn_network"])
+agent.set_env("OVPN_TOTP_REQUIRED", "true" if cfg["ovpn_totp_required"] else "false")
+agent.set_env("CLUSTER_WG_CIDR", cluster_cidr)
+agent.set_env("CLUSTER_WG_PORT", str(cluster_port))
+agent.dump_env()
+
+vpn_helpers.atomic_write_json(state_dir / "secrets" / "desired_config.json", cfg, mode=0o600)
+
+agent.bind_user_domains([cfg["user_domain"]] if cfg["user_domain"] else [])
+vpn_helpers.write_ldap_secret(cfg["user_domain"], cfg["vpn_group"], state_dir=state_dir)
+
+vpn_helpers.configure_host_firewall(
+    agent,
+    module_id,
+    cfg["wg_port"],
+    ovpn_enabled=cfg["ovpn_enabled"],
+    ovpn_port=cfg["ovpn_port"],
+    ovpn_proto=cfg["ovpn_proto"],
+    cluster_wg_cidr=cluster_cidr,
+)
+
+tcp_port = os.environ.get("TCP_PORT", "8080")
+vpn_helpers.configure_traefik_route(
+    agent,
+    module_id=module_id,
+    tcp_port=tcp_port,
+    portal_enabled=cfg["portal_enabled"],
+    portal_domain=cfg["portal_domain"],
+    lets_encrypt=cfg["portal_lets_encrypt"],
+    http2https=cfg["portal_http2https"],
+    previously_enabled=previously_portal_enabled,
+)

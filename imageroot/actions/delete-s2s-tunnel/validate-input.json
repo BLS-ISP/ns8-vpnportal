@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "delete-s2s-tunnel input",
+  "type": "object",
+  "required": [
+    "tunnel_id"
+  ],
+  "properties": {
+    "tunnel_id": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

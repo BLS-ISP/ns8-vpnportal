@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "toggle-peer input",
+  "type": "object",
+  "required": [
+    "peer_id",
+    "enabled"
+  ],
+  "properties": {
+    "peer_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "enabled": {
+      "type": "boolean"
+    }
+  }
+}

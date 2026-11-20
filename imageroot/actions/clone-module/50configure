@@ -1,0 +1,95 @@
+#!/usr/bin/env python3
+"""Re-key and assign collision-free ports and transfer subnets for a cloned instance."""
+
+from __future__ import annotations
+
+import os
+import sys
+
+_PYPKG = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "pypkg"))
+if _PYPKG not in sys.path:
+    sys.path.insert(0, _PYPKG)
+
+import agent  # type: ignore[import-not-found]
+import vpn_helpers
+
+module_id = vpn_helpers.get_module_id()
+state_dir = vpn_helpers.get_state_dir(module_id)
+
+setup_script = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "update-module.d", "10setup"))
+vpn_helpers.run_cmd(["sh", setup_script], check=True)
+
+# Remove cloned cryptographic state & peer DB so the clone generates fresh server keys & PKI
+for rel_file in (
+    "secrets/master.key",
+    "data/vpn.db",
+    "data/vpn.db-wal",
+    "data/vpn.db-shm",
+    "backup/vpn.db.bak",
+):
+    (state_dir / rel_file).unlink(missing_ok=True)
+
+cluster_cidr, cluster_port = vpn_helpers.detect_cluster_wg()
+wg_port = vpn_helpers.pick_free_wg_port(
+    preferred=vpn_helpers.DEFAULT_WG_PORT,
+    cluster_wg_port=cluster_port,
+)
+wg_network = vpn_helpers.pick_free_wg_network(
+    preferred=vpn_helpers.DEFAULT_WG_NETWORK,
+    cluster_wg_cidr=cluster_cidr,
+)
+ovpn_proto = (os.environ.get("OVPN_PROTO") or vpn_helpers.DEFAULT_OVPN_PROTO).lower()
+ovpn_port = vpn_helpers.pick_free_ovpn_port(
+    preferred=vpn_helpers.DEFAULT_OVPN_PORT,
+    proto=ovpn_proto,
+    wg_port=wg_port,
+    cluster_wg_port=cluster_port,
+)
+ovpn_network = vpn_helpers.pick_free_wg_network(
+    preferred=vpn_helpers.DEFAULT_OVPN_NETWORK,
+    cluster_wg_cidr=cluster_cidr,
+    extra_forbidden=[wg_network],
+)
+ovpn_enabled = os.environ.get("OVPN_ENABLED", "false").lower() == "true"
+
+# Avoid Traefik hostname & port/subnet conflicts with the original instance
+agent.set_env("WG_INTERFACE", vpn_helpers.get_wg_interface_name(module_id))
+agent.set_env("OVPN_INTERFACE", vpn_helpers.get_ovpn_interface_name(module_id))
+agent.set_env("WG_PORT", str(wg_port))
+agent.set_env("WG_NETWORK", wg_network)
+agent.set_env("OVPN_PORT", str(ovpn_port))
+agent.set_env("OVPN_PUBLIC_PORT", str(ovpn_port))
+agent.set_env("OVPN_NETWORK", ovpn_network)
+agent.set_env("PORTAL_ENABLED", "false")
+agent.set_env("PORTAL_DOMAIN", "")
+agent.set_env("CLUSTER_WG_CIDR", cluster_cidr)
+agent.set_env("CLUSTER_WG_PORT", str(cluster_port))
+agent.dump_env()
+
+user_domain = os.environ.get("USER_DOMAIN", "").strip()
+vpn_group = os.environ.get("VPN_GROUP", "").strip()
+agent.bind_user_domains([user_domain] if user_domain else [])
+vpn_helpers.write_ldap_secret(user_domain, vpn_group, state_dir=state_dir)
+vpn_helpers.configure_host_firewall(
+    agent,
+    module_id,
+    wg_port,
+    ovpn_enabled=ovpn_enabled,
+    ovpn_port=ovpn_port,
+    ovpn_proto=ovpn_proto,
+    cluster_wg_cidr=cluster_cidr,
+)
+
+if os.environ.get("CONFIGURED", "false").lower() == "true" and os.environ.get("ENDPOINT_HOST", "").strip():
+    vpn_helpers.run_cmd(["systemctl", "enable", "--now", f"{module_id}.service"], check=True)
+    sock_path = vpn_helpers.get_admin_socket_path(module_id, state_dir=state_dir)
+    if vpn_helpers.wait_for_admin_socket(socket_path=sock_path, timeout=30.0):
+        cfg_payload = vpn_helpers.normalize_config_input(vpn_helpers.build_fallback_configuration(module_id))
+        cfg_payload["wg_port"] = wg_port
+        cfg_payload["wg_network"] = wg_network
+        cfg_payload["ovpn_port"] = ovpn_port
+        cfg_payload["ovpn_public_port"] = ovpn_port
+        cfg_payload["ovpn_network"] = ovpn_network
+        cfg_payload["portal_enabled"] = False
+        cfg_payload["portal_domain"] = ""
+        vpn_helpers.admin_api_request("PUT", "/api/v1/admin/config", payload=cfg_payload, socket_path=sock_path)

@@ -1,0 +1,36 @@
+#!/usr/bin/env python3
+"""Create a new WireGuard peer profile via vpn-controller admin socket."""
+
+from __future__ import annotations
+
+import json
+import os
+import sys
+
+_PYPKG = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "pypkg"))
+if _PYPKG not in sys.path:
+    sys.path.insert(0, _PYPKG)
+
+import vpn_helpers
+
+raw = sys.stdin.read().strip()
+data = json.loads(raw) if raw else {}
+
+payload: dict[str, object] = {
+    "username": str(data.get("username") or "").strip(),
+    "device_name": str(data.get("device_name") or "").strip(),
+    "enforce_limit": bool(data.get("enforce_limit", False)),
+    "allow_unlisted": bool(data.get("allow_unlisted", False)),
+}
+
+assigned_ip = str(data.get("assigned_ip") or "").strip()
+if assigned_ip:
+    payload["assigned_ip"] = assigned_ip
+
+try:
+    resp = vpn_helpers.admin_api_request("POST", "/api/v1/admin/peers", payload=payload, timeout=15.0)
+except vpn_helpers.AdminApiError as exc:
+    print(str(exc), file=sys.stderr)
+    sys.exit(1)
+
+json.dump(resp, sys.stdout)

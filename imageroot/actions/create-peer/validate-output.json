@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "create-peer output",
+  "type": "object",
+  "required": [
+    "peer",
+    "config_text",
+    "qr_svg_data_uri"
+  ],
+  "properties": {
+    "peer": {
+      "type": "object",
+      "required": [
+        "id",
+        "username",
+        "device_name",
+        "assigned_ip",
+        "public_key"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "device_name": {
+          "type": "string"
+        },
+        "assigned_ip": {
+          "type": "string"
+        },
+        "public_key": {
+          "type": "string"
+        },
+        "admin_enabled": {
+          "type": "boolean"
+        },
+        "effective_active": {
+          "type": "boolean"
+        }
+      }
+    },
+    "config_text": {
+      "type": "string"
+    },
+    "qr_svg_data_uri": {
+      "type": "string"
+    }
+  }
+}

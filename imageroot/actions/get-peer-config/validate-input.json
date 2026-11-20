@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "get-peer-config input",
+  "type": "object",
+  "required": [
+    "peer_id"
+  ],
+  "properties": {
+    "peer_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "UUID of the peer whose configuration and QR code should be retrieved"
+    }
+  }
+}

@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+"""Return recent security and administrative audit log entries via vpn-controller admin socket."""
+
+from __future__ import annotations
+
+import json
+import os
+import sys
+import urllib.parse
+
+_PYPKG = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "pypkg"))
+if _PYPKG not in sys.path:
+    sys.path.insert(0, _PYPKG)
+
+import vpn_helpers
+
+raw = sys.stdin.read().strip()
+data = json.loads(raw) if raw else {}
+if not isinstance(data, dict):
+    data = {}
+
+query_params: dict[str, str] = {}
+if data.get("limit") is not None:
+    query_params["limit"] = str(int(data["limit"]))
+
+event_type = str(data.get("event_type") or "").strip()
+if event_type:
+    query_params["event_type"] = event_type
+
+username = str(data.get("username") or "").strip()
+if username:
+    query_params["username"] = username
+
+query_str = urllib.parse.urlencode(query_params)
+path = f"/api/v1/admin/audit-logs?{query_str}" if query_str else "/api/v1/admin/audit-logs"
+
+module_id = vpn_helpers.get_module_id()
+state_dir = vpn_helpers.get_state_dir(module_id)
+sock_path = vpn_helpers.get_admin_socket_path(module_id, state_dir=state_dir)
+
+try:
+    resp = vpn_helpers.admin_api_request("GET", path, socket_path=sock_path, timeout=15.0)
+except vpn_helpers.AdminApiError as exc:
+    if exc.status_code == 503:
+        json.dump({"entries": [], "total": 0}, sys.stdout)
+        sys.exit(0)
+    print(str(exc), file=sys.stderr)
+    sys.exit(1)
+
+json.dump(resp, sys.stdout)

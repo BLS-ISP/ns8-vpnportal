@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+"""List available NS8 user domains configured in ldapproxy."""
+
+from __future__ import annotations
+
+import json
+import os
+import sys
+
+_PYPKG = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "pypkg"))
+if _PYPKG not in sys.path:
+    sys.path.insert(0, _PYPKG)
+
+import vpn_helpers
+
+domains = vpn_helpers.list_user_domains_info()
+json.dump({"domains": domains}, sys.stdout)

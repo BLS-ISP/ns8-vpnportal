@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "delete-s2s-tunnel output",
+  "type": "object",
+  "required": [
+    "deleted",
+    "tunnel_id"
+  ],
+  "properties": {
+    "deleted": {
+      "type": "boolean"
+    },
+    "tunnel_id": {
+      "type": "string"
+    }
+  }
+}

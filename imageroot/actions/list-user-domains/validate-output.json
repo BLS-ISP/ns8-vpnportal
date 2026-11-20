@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "list-user-domains output",
+  "type": "object",
+  "required": [
+    "domains"
+  ],
+  "properties": {
+    "domains": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "schema",
+          "location",
+          "base_dn",
+          "suggested_dns_search"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "schema": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "base_dn": {
+            "type": "string"
+          },
+          "suggested_dns_search": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

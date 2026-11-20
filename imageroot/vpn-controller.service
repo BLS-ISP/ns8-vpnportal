@@ -1,0 +1,43 @@
+[Unit]
+Description=NethServer 8 Business Roadwarrior VPN Controller (%N)
+Documentation=https://docs.nethserver.org/
+Wants=network-online.target
+After=network-online.target firewalld.service
+
+[Service]
+Environment=PODMAN_SYSTEMD_UNIT=%n
+EnvironmentFile=/var/lib/nethserver/%N/state/environment
+Restart=always
+RestartSec=5
+TimeoutStartSec=90
+TimeoutStopSec=70
+ExecStartPre=/bin/rm -f %t/%N.pid %t/%N.ctr-id
+ExecStartPre=-/usr/sbin/sysctl -w net.ipv4.ip_forward=1
+ExecStart=/usr/bin/podman run \
+    --conmon-pidfile %t/%N.pid \
+    --cidfile %t/%N.ctr-id \
+    --cgroups=no-conmon \
+    --sdnotify=conmon \
+    --replace \
+    -d \
+    --name %N \
+    --pull=missing \
+    --network=host \
+    --device=/dev/net/tun \
+    --cap-add=NET_ADMIN,NET_RAW \
+    --env-file=/var/lib/nethserver/%N/state/environment \
+    -e MODULE_ID=%N \
+    -e STATE_DIR=/state \
+    --volume=/var/lib/nethserver/%N/state:/state:Z \
+    ${VPN_CONTROLLER_IMAGE}
+ExecStop=/usr/bin/podman stop --ignore --cidfile %t/%N.ctr-id -t 15
+ExecStopPost=/usr/bin/podman rm --ignore -f --cidfile %t/%N.ctr-id
+ExecStopPost=-/bin/sh -c 'ip link delete dev "${WG_INTERFACE:-wg-%N}" 2>/dev/null || /usr/sbin/ip link delete dev wg-%N 2>/dev/null || true'
+ExecStopPost=-/bin/sh -c 'ip link delete dev "${OVPN_INTERFACE:-tun-%N}" 2>/dev/null || /usr/sbin/ip link delete dev tun-%N 2>/dev/null || true'
+ExecStopPost=-/bin/sh -c 'tbl="ns8_vpn_$(printf "%%s" "%N" | tr -c "a-zA-Z0-9_" "_")"; nft delete table inet "$tbl" 2>/dev/null || true'
+PIDFile=%t/%N.pid
+Type=notify
+NotifyAccess=all
+
+[Install]
+WantedBy=multi-user.target

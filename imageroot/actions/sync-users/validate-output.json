@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "sync-users output",
+  "type": "object",
+  "required": [
+    "status",
+    "synced_at",
+    "total_users",
+    "authorized_users",
+    "active_peers",
+    "suspended_peers",
+    "message"
+  ],
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": [
+        "ok",
+        "skipped",
+        "ldap_error"
+      ]
+    },
+    "synced_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "total_users": {
+      "type": "integer"
+    },
+    "authorized_users": {
+      "type": "integer"
+    },
+    "active_peers": {
+      "type": "integer"
+    },
+    "suspended_peers": {
+      "type": "integer"
+    },
+    "message": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+"""Refresh secrets/ldap.json and reconcile peers when NS8 user domain changes."""
+
+from __future__ import annotations
+
+import os
+import sys
+
+_PYPKG = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "pypkg"))
+if _PYPKG not in sys.path:
+    sys.path.insert(0, _PYPKG)
+
+import vpn_helpers
+
+module_id = vpn_helpers.get_module_id()
+state_dir = vpn_helpers.get_state_dir(module_id)
+user_domain = os.environ.get("USER_DOMAIN", "").strip()
+vpn_group = os.environ.get("VPN_GROUP", "").strip()
+
+if not user_domain:
+    sys.exit(0)
+
+try:
+    vpn_helpers.write_ldap_secret(user_domain, vpn_group, state_dir=state_dir)
+except Exception as exc:
+    print(f"Warning: could not refresh ldap.json on user-domain-changed: {exc}", file=sys.stderr)
+    sys.exit(0)
+
+sock_path = vpn_helpers.get_admin_socket_path(module_id, state_dir=state_dir)
+if sock_path.exists():
+    try:
+        vpn_helpers.admin_api_request("POST", "/api/v1/admin/reconcile", payload={}, socket_path=sock_path)
+    except vpn_helpers.AdminApiError as exc:
+        print(f"Warning: reconcile call skipped on user-domain-changed: {exc}", file=sys.stderr)

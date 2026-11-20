@@ -1,0 +1,44 @@
+{
+  "name": "ns8-vpn-ui",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NethServer 8 Business Roadwarrior VPN & Self-Service Portal Cockpit UI",
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "@carbon/icons-vue": "^10.28.0",
+    "@carbon/vue": "^2.37.0",
+    "@nethserver/ns8-ui-lib": "^1.11.0",
+    "axios": "^1.7.7",
+    "carbon-components": "10.58.5",
+    "core-js": "^3.36.0",
+    "date-fns": "^2.30.0",
+    "date-fns-tz": "^1.3.8",
+    "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
+    "lottie-web-vue": "^1.2.1",
+    "vue": "^2.7.16",
+    "vue-axios": "^3.5.2",
+    "vue-date-fns": "^2.0.1",
+    "vue-debounce": "^2.6.0",
+    "vue-i18n": "^8.28.2",
+    "vue-router": "^3.6.5",
+    "vuex": "^3.6.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.0",
+    "@babel/eslint-parser": "^7.24.0",
+    "@vue/cli-plugin-babel": "^5.0.8",
+    "@vue/cli-plugin-eslint": "^5.0.8",
+    "@vue/cli-plugin-router": "^5.0.8",
+    "@vue/cli-plugin-vuex": "^5.0.8",
+    "@vue/cli-service": "^5.0.8",
+    "eslint": "^7.32.0",
+    "eslint-plugin-vue": "^8.7.1",
+    "sass": "~1.69.7",
+    "sass-loader": "^12.6.0"
+  }
+}

@@ -1,0 +1,33 @@
+#!/usr/bin/env sh
+#
+# Create an online hot backup of the SQLite VPN database prior to Restic snapshot
+#
+
+set -eu
+
+MODULE_ID="${MODULE_ID:?MODULE_ID environment variable is required}"
+STATE_DIR="${AGENT_STATE_DIR:-/var/lib/nethserver/${MODULE_ID}/state}"
+DB_PATH="${STATE_DIR}/data/vpn.db"
+BACKUP_DIR="${STATE_DIR}/backup"
+BAK_PATH="${BACKUP_DIR}/vpn.db.bak"
+
+mkdir -p "${BACKUP_DIR}"
+chmod 0700 "${BACKUP_DIR}"
+rm -f "${BAK_PATH}"
+
+if [ -f "${DB_PATH}" ]; then
+    if command -v sqlite3 >/dev/null 2>&1; then
+        sqlite3 "${DB_PATH}" ".backup '${BAK_PATH}'"
+    else
+        python3 -c '
+import sqlite3, sys
+src = sqlite3.connect(sys.argv[1], timeout=30.0)
+dst = sqlite3.connect(sys.argv[2])
+with dst:
+    src.backup(dst)
+dst.close()
+src.close()
+' "${DB_PATH}" "${BAK_PATH}"
+    fi
+    chmod 0600 "${BAK_PATH}"
+fi

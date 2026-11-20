@@ -1,0 +1,107 @@
+#!/usr/bin/env python3
+"""Restore SQLite database, master key permissions, domain bindings, firewall, and service."""
+
+from __future__ import annotations
+
+import os
+import shutil
+import sqlite3
+import sys
+
+_PYPKG = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "pypkg"))
+if _PYPKG not in sys.path:
+    sys.path.insert(0, _PYPKG)
+
+import agent  # type: ignore[import-not-found]
+import vpn_helpers
+
+module_id = vpn_helpers.get_module_id()
+state_dir = vpn_helpers.get_state_dir(module_id)
+
+bak_file = state_dir / "backup" / "vpn.db.bak"
+db_dir = state_dir / "data"
+db_file = db_dir / "vpn.db"
+db_dir.mkdir(parents=True, exist_ok=True)
+
+if bak_file.is_file():
+    for suffix in ("", "-wal", "-shm"):
+        (db_dir / f"vpn.db{suffix}").unlink(missing_ok=True)
+    shutil.copy2(bak_file, db_file)
+    try:
+        os.chmod(db_file, 0o600)
+    except OSError:
+        pass
+    bak_file.unlink(missing_ok=True)
+
+master_key = state_dir / "secrets" / "master.key"
+if master_key.is_file():
+    try:
+        os.chmod(master_key, 0o600)
+    except OSError:
+        pass
+
+# Update interface names in restored SQLite DB if MODULE_ID changed on target node
+if db_file.is_file():
+    try:
+        conn = sqlite3.connect(str(db_file))
+        with conn:
+            conn.execute(
+                "UPDATE server_config SET interface_name = ? WHERE id = 1",
+                (vpn_helpers.get_wg_interface_name(module_id),),
+            )
+            try:
+                conn.execute(
+                    "UPDATE server_config SET ovpn_interface_name = ? WHERE id = 1",
+                    (vpn_helpers.get_ovpn_interface_name(module_id),),
+                )
+            except sqlite3.Error:
+                pass
+        conn.close()
+    except sqlite3.Error:
+        pass
+
+user_domain = os.environ.get("USER_DOMAIN", "").strip()
+vpn_group = os.environ.get("VPN_GROUP", "").strip()
+wg_port = int(os.environ.get("WG_PORT") or vpn_helpers.DEFAULT_WG_PORT)
+ovpn_enabled = os.environ.get("OVPN_ENABLED", "false").lower() == "true"
+ovpn_port = int(os.environ.get("OVPN_PORT") or vpn_helpers.DEFAULT_OVPN_PORT)
+ovpn_proto = (os.environ.get("OVPN_PROTO") or vpn_helpers.DEFAULT_OVPN_PROTO).lower()
+tcp_port = os.environ.get("TCP_PORT", "8080")
+portal_enabled = os.environ.get("PORTAL_ENABLED", "false").lower() == "true"
+portal_domain = os.environ.get("PORTAL_DOMAIN", "").strip()
+portal_lets_encrypt = os.environ.get("PORTAL_LETS_ENCRYPT", "false").lower() == "true"
+portal_http2https = os.environ.get("PORTAL_HTTP2HTTPS", "true").lower() == "true"
+
+cluster_cidr, _ = vpn_helpers.detect_cluster_wg()
+
+agent.set_env("WG_INTERFACE", vpn_helpers.get_wg_interface_name(module_id))
+agent.set_env("OVPN_INTERFACE", vpn_helpers.get_ovpn_interface_name(module_id))
+agent.dump_env()
+
+agent.bind_user_domains([user_domain] if user_domain else [])
+vpn_helpers.write_ldap_secret(user_domain, vpn_group, state_dir=state_dir)
+vpn_helpers.configure_host_firewall(
+    agent,
+    module_id,
+    wg_port,
+    ovpn_enabled=ovpn_enabled,
+    ovpn_port=ovpn_port,
+    ovpn_proto=ovpn_proto,
+    cluster_wg_cidr=cluster_cidr,
+)
+
+vpn_helpers.configure_traefik_route(
+    agent,
+    module_id=module_id,
+    tcp_port=tcp_port,
+    portal_enabled=portal_enabled,
+    portal_domain=portal_domain,
+    lets_encrypt=portal_lets_encrypt,
+    http2https=portal_http2https,
+)
+
+if os.environ.get("CONFIGURED", "false").lower() == "true":
+    vpn_helpers.run_cmd(["systemctl", "enable", "--now", f"{module_id}.service"], check=True)
+    sock_path = vpn_helpers.get_admin_socket_path(module_id, state_dir=state_dir)
+    if vpn_helpers.wait_for_admin_socket(socket_path=sock_path, timeout=30.0):
+        vpn_helpers.admin_api_request("POST", "/api/v1/admin/reconcile", payload={}, socket_path=sock_path)

@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+#
+# Prepare state directories and install the rootful systemd unit for MODULE_ID
+#
+
+set -eu
+
+MODULE_ID="${MODULE_ID:?MODULE_ID environment variable is required}"
+
+cd "$(dirname "$0")"
+
+STATE_DIR="${AGENT_STATE_DIR:-/var/lib/nethserver/${MODULE_ID}/state}"
+
+mkdir -p "${STATE_DIR}/data" "${STATE_DIR}/secrets" "${STATE_DIR}/run" "${STATE_DIR}/backup"
+chmod 0700 "${STATE_DIR}/data" "${STATE_DIR}/secrets" "${STATE_DIR}/run" "${STATE_DIR}/backup"
+
+install -m 644 ../vpn-controller.service "/etc/systemd/system/${MODULE_ID}.service"
+systemctl daemon-reload

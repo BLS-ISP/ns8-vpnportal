@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+"""Delete a WireGuard Site-to-Site tunnel and clean up its peer and kernel routes."""
+
+from __future__ import annotations
+
+import json
+import os
+import sys
+import urllib.parse
+
+_PYPKG = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "pypkg"))
+if _PYPKG not in sys.path:
+    sys.path.insert(0, _PYPKG)
+
+import vpn_helpers
+
+raw = sys.stdin.read().strip()
+data = json.loads(raw) if raw else {}
+tunnel_id = urllib.parse.quote(str(data.get("tunnel_id") or "").strip(), safe="")
+
+try:
+    resp = vpn_helpers.admin_api_request("DELETE", f"/api/v1/admin/s2s/{tunnel_id}", timeout=15.0)
+except vpn_helpers.AdminApiError as exc:
+    print(str(exc), file=sys.stderr)
+    sys.exit(1)
+
+json.dump(resp, sys.stdout)

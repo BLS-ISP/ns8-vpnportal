@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "revoke-peer input",
+  "type": "object",
+  "required": [
+    "peer_id"
+  ],
+  "properties": {
+    "peer_id": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

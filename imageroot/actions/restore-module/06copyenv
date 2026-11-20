@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+"""Restore module configuration environment variables without clobbering node identity."""
+
+from __future__ import annotations
+
+import json
+import sys
+
+import agent  # type: ignore[import-not-found]
+
+RESTORE_ENV_KEYS = (
+    "CONFIGURED",
+    "ENDPOINT_HOST",
+    "WG_PORT",
+    "WG_NETWORK",
+    "TUNNEL_MODE",
+    "ALLOWED_CIDRS",
+    "DNS_SERVERS",
+    "DNS_SEARCH_DOMAIN",
+    "WG_MTU",
+    "PERSISTENT_KEEPALIVE",
+    "NAT_ENABLED",
+    "USER_DOMAIN",
+    "VPN_GROUP",
+    "MAX_DEVICES_PER_USER",
+    "SYNC_INTERVAL_MINUTES",
+    "PORTAL_ENABLED",
+    "PORTAL_DOMAIN",
+    "PORTAL_LETS_ENCRYPT",
+    "PORTAL_HTTP2HTTPS",
+    "PORTAL_TOTP_MODE",
+    "OVPN_ENABLED",
+    "OVPN_PROTO",
+    "OVPN_PORT",
+    "OVPN_PUBLIC_PORT",
+    "OVPN_NETWORK",
+    "OVPN_TOTP_REQUIRED",
+)
+
+raw = sys.stdin.read().strip()
+request = json.loads(raw) if raw else {}
+original_environment = request.get("environment") or {}
+
+for key in RESTORE_ENV_KEYS:
+    if key in original_environment:
+        agent.set_env(key, str(original_environment[key]))
+
+agent.dump_env()

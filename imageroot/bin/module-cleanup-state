@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+#
+# Remove temporary SQLite dump file after Restic backup completes
+#
+
+set -eu
+
+MODULE_ID="${MODULE_ID:?MODULE_ID environment variable is required}"
+STATE_DIR="${AGENT_STATE_DIR:-/var/lib/nethserver/${MODULE_ID}/state}"
+
+rm -f "${STATE_DIR}/backup/vpn.db.bak"

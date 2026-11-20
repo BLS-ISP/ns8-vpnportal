@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "create-peer input",
+  "type": "object",
+  "required": [
+    "username",
+    "device_name"
+  ],
+  "properties": {
+    "username": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "description": "Authorized AD/LDAP username"
+    },
+    "device_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "Human-friendly device identifier (e.g. Work-Laptop, iPhone)"
+    },
+    "enforce_limit": {
+      "type": "boolean",
+      "description": "Whether to enforce max_devices_per_user limit (false by default for admin creation)"
+    },
+    "allow_unlisted": {
+      "type": "boolean",
+      "description": "Whether to allow creating a peer for a user not yet present in synced LDAP cache"
+    },
+    "assigned_ip": {
+      "type": "string",
+      "maxLength": 64,
+      "description": "Optional static VPN IPv4 address within wg_network (omit or leave empty for automatic IPAM allocation)"
+    }
+  }
+}
