@@ -2,6 +2,7 @@ FROM docker.io/library/python:3.12-slim-bookworm
 
 LABEL org.opencontainers.image.title="ns8-vpn-controller" \
       org.opencontainers.image.description="NethServer 8 Roadwarrior & Site-to-Site VPN Controller (WireGuard + OpenVPN + TOTP Portal + AD/LDAP Sync)" \
+      org.opencontainers.image.source="https://github.com/GeneraBlack/ns8-vpnportal" \
       org.opencontainers.image.licenses="GPL-3.0-or-later"
 
 ENV PYTHONDONTWRITEBYTECODE=1 \

@@ -46,6 +46,7 @@ jobs:
       - name: Build container images
         id: build-images
         env:
+          CONTAINER_ENGINE: docker
           REPOBASE: ${{ steps.meta.outputs.repobase }}
           IMAGETAG: ${{ steps.meta.outputs.imagetag }}
         run: bash ./build-images.sh
@@ -58,18 +59,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Authenticate Podman with GHCR
-        if: github.event_name != 'pull_request'
-        env:
-          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          printf '%s\n' "${GHCR_TOKEN}" | podman login "${REGISTRY}" -u "${GITHUB_ACTOR}" --password-stdin
-
       - name: Push images to GHCR
         if: github.event_name != 'pull_request'
         env:
           REPOBASE: ${{ steps.meta.outputs.repobase }}
           IMAGETAG: ${{ steps.meta.outputs.imagetag }}
         run: |
-          podman push "${REPOBASE}/vpn-controller:${IMAGETAG}"
-          podman push "${REPOBASE}/vpn:${IMAGETAG}"
+          docker push "${REPOBASE}/vpn-controller:${IMAGETAG}"
+          docker push "${REPOBASE}/vpn:${IMAGETAG}"

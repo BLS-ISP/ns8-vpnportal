@@ -5,13 +5,18 @@
 
 set -euo pipefail
 
-repobase="${REPOBASE:-ghcr.io/nethserver}"
+repobase="${REPOBASE:-ghcr.io/generablack}"
 imagetag="${IMAGETAG:-latest}"
 
 controller_image="${repobase}/vpn-controller"
 module_image="${repobase}/vpn"
 
-if command -v podman >/dev/null 2>&1; then
+if [[ -n "${CONTAINER_ENGINE:-}" ]]; then
+    if ! command -v "${CONTAINER_ENGINE}" >/dev/null 2>&1; then
+        echo "Error: requested CONTAINER_ENGINE '${CONTAINER_ENGINE}' not found in PATH" >&2
+        exit 1
+    fi
+elif command -v podman >/dev/null 2>&1; then
     CONTAINER_ENGINE="podman"
 elif command -v docker >/dev/null 2>&1; then
     CONTAINER_ENGINE="docker"

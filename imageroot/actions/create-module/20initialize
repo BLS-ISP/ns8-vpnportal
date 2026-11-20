@@ -40,7 +40,7 @@ ovpn_network = vpn_helpers.pick_free_wg_network(
 _, host_lan_cidr = vpn_helpers.detect_host_lan(module_id)
 
 if not os.environ.get("VPN_CONTROLLER_IMAGE"):
-    agent.set_env("VPN_CONTROLLER_IMAGE", "ghcr.io/nethserver/vpn-controller:latest")
+    agent.set_env("VPN_CONTROLLER_IMAGE", "ghcr.io/generablack/vpn-controller:latest")
 
 agent.set_env("CONFIGURED", "false")
 agent.set_env("WG_INTERFACE", vpn_helpers.get_wg_interface_name(module_id))

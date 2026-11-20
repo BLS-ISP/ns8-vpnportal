@@ -41,7 +41,9 @@ FROM scratch
 COPY --from=imageroot-builder /imageroot /imageroot
 COPY --from=ui-builder /app/dist /ui
 
-LABEL org.nethserver.rootfull=1 \
+LABEL org.opencontainers.image.source="https://github.com/GeneraBlack/ns8-vpnportal" \
+      org.opencontainers.image.licenses="GPL-3.0-or-later" \
+      org.nethserver.rootfull=1 \
       org.nethserver.max-per-node=1 \
       org.nethserver.tcp-ports-demand=1 \
       org.nethserver.authorizations="traefik@node:routeadm ldapproxy@node:accountconsumer node:fwadm" \

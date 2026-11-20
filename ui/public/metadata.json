@@ -7,14 +7,14 @@
   "categories": ["security", "network"],
   "authors": [
     {
-      "name": "NS8 VPN Contributors",
-      "email": "info@nethserver.org"
+      "name": "GeneraBlack",
+      "email": "https://github.com/GeneraBlack"
     }
   ],
   "docs": {
-    "documentation_url": "https://docs.nethserver.org",
-    "bug_url": "https://github.com/NethServer/ns8-vpn/issues",
-    "code_url": "https://github.com/NethServer/ns8-vpn"
+    "documentation_url": "https://github.com/GeneraBlack/ns8-vpnportal#readme",
+    "bug_url": "https://github.com/GeneraBlack/ns8-vpnportal/issues",
+    "code_url": "https://github.com/GeneraBlack/ns8-vpnportal"
   },
-  "source": "ghcr.io/nethserver/vpn"
+  "source": "ghcr.io/generablack/vpn"
 }

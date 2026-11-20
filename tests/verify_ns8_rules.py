@@ -238,6 +238,8 @@ def check_lf_line_endings(errors: list[str]) -> None:
         targets.extend(iter_clean_files(REPO_ROOT / "tests"))
     if (REPO_ROOT / "ui").exists():
         targets.extend(iter_clean_files(REPO_ROOT / "ui"))
+    if (REPO_ROOT / ".github").exists():
+        targets.extend(iter_clean_files(REPO_ROOT / ".github"))
     smoke_script = REPO_ROOT / "tests" / "ns8_smoke_test.sh"
     if smoke_script.is_file():
         targets.append(smoke_script)

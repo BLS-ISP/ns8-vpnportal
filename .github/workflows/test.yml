@@ -20,6 +20,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
+          cache-dependency-path: "container/requirements.txt"
 
       - name: Install Python dependencies
         run: |
@@ -46,6 +47,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: "npm"
+          cache-dependency-path: "ui/package-lock.json"
+
+      - name: Check Self-Service Portal JavaScript syntax
+        run: node --check container/app/portal_static/app.js
 
       - name: Install UI dependencies
         working-directory: ui

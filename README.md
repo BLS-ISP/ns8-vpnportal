@@ -41,7 +41,7 @@
 ## Building Container Images
 
 ```bash
-REPOBASE=ghcr.io/your-org IMAGETAG=latest ./build-images.sh
+REPOBASE=ghcr.io/generablack IMAGETAG=latest ./build-images.sh
 ```
 
 This builds:
@@ -52,7 +52,7 @@ This builds:
 
 ```bash
 # Install on node 1
-add-module ghcr.io/your-org/vpn:latest 1
+add-module ghcr.io/generablack/vpn:latest 1
 
 # Provision an admin peer with an optional static VPN IP
 api-cli run module/vpn1/create-peer --data '{"username":"jdoe","device_name":"Admin-Workstation","assigned_ip":"10.199.0.10"}'
