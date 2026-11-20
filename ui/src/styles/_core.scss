@@ -57,6 +57,44 @@ body {
     font-size: 0.8125rem;
     color: $ns-text-secondary;
   }
+
+  .ns8-lang-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background-color: #f4f4f4;
+    border: 1px solid $ns-border-subtle;
+    border-radius: 2px;
+    padding: 0.125rem 0.25rem;
+  }
+
+  .ns8-lang-btn {
+    border: none;
+    background: transparent;
+    color: $ns-text-secondary;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    padding: 0.2rem 0.45rem;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background-color 120ms ease, color 120ms ease;
+
+    &:hover {
+      color: #161616;
+    }
+
+    &.is-active {
+      background-color: $ns-brand-primary;
+      color: #ffffff;
+    }
+  }
+
+  .ns8-lang-sep {
+    font-size: 0.75rem;
+    color: #c6c6c6;
+    user-select: none;
+  }
 }
 
 .page-header-row {

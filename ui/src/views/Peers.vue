@@ -11,6 +11,20 @@
       </cv-column>
     </cv-row>
 
+    <!-- Missing AD/LDAP user domain warning banner -->
+    <cv-row v-if="configLoaded && !userDomain" class="mg-bottom-md">
+      <cv-column>
+        <NsInlineNotification
+          kind="warning"
+          :title="$t('status.no_user_domain_warning_title')"
+          :description="$t('status.no_user_domain_warning_description')"
+          :actionLabel="$t('status.configure_domain_cta')"
+          @action="goToSettings"
+          :showCloseButton="false"
+        />
+      </cv-column>
+    </cv-row>
+
     <!-- Action feedback banner -->
     <cv-row v-if="feedbackBanner.visible" class="mg-bottom-md">
       <cv-column>
@@ -18,6 +32,12 @@
           :kind="feedbackBanner.kind"
           :title="feedbackBanner.title"
           :description="feedbackBanner.description"
+          :actionLabel="
+            feedbackBanner.showSettingsAction
+              ? $t('status.configure_domain_cta')
+              : ''
+          "
+          @action="goToSettings"
           :showCloseButton="true"
           @close="feedbackBanner.visible = false"
         />
@@ -729,6 +749,7 @@ import TrashCan20 from "@carbon/icons-vue/es/trash-can/20";
 import Laptop20 from "@carbon/icons-vue/es/laptop/20";
 import {
   to,
+  goToAppPage,
   formatTransferBytes,
   formatRelativeHandshake,
   resolveValidationError,
@@ -764,6 +785,8 @@ export default {
       Unlocked20,
       TrashCan20,
       ovpnEnabled: false,
+      configLoaded: false,
+      userDomain: "",
       wgNetwork: "10.199.0.0/24",
       newPeerAssignedIp: "",
       users: [],
@@ -782,6 +805,7 @@ export default {
         kind: "success",
         title: "",
         description: "",
+        showSettingsAction: false,
       },
       createModal: {
         visible: false,
@@ -976,6 +1000,8 @@ export default {
         (ctx, taskResult) => {
           const cfg = (taskResult && taskResult.output) || {};
           this.ovpnEnabled = Boolean(cfg.ovpn_enabled);
+          this.userDomain = (cfg.user_domain || "").trim();
+          this.configLoaded = true;
           if (cfg.wg_network) {
             this.wgNetwork = cfg.wg_network;
           }
@@ -1080,6 +1106,9 @@ export default {
         );
       }
     },
+    goToSettings() {
+      goToAppPage(this, "settings");
+    },
     syncUsersCompleted(taskContext, taskResult) {
       this.loading.syncUsers = false;
       const out = (taskResult && taskResult.output) || {};
@@ -1089,6 +1118,15 @@ export default {
           kind: "error",
           title: this.$t("status.sync_error_title"),
           description: out.message || this.$t("status.sync_status_ldap_error"),
+          showSettingsAction: false,
+        };
+      } else if (out.status === "skipped") {
+        this.feedbackBanner = {
+          visible: true,
+          kind: "warning",
+          title: this.$t("status.sync_skipped_title"),
+          description: this.$t("status.sync_skipped_no_domain"),
+          showSettingsAction: true,
         };
       } else {
         this.feedbackBanner = {
@@ -1100,9 +1138,11 @@ export default {
             active: out.active_peers || 0,
             suspended: out.suspended_peers || 0,
           }),
+          showSettingsAction: false,
         };
       }
       this.listPeers();
+      this.getConfiguration();
     },
     syncUsersAborted(taskResult, taskContext) {
       console.error(`${taskContext.action} aborted`, taskResult);

@@ -62,18 +62,36 @@
                 class="maxwidth mg-bottom-md"
               />
 
+              <NsInlineNotification
+                v-else-if="
+                  !loading.getConfiguration &&
+                  !loading.listUserDomains &&
+                  userDomains.length > 0 &&
+                  !form.user_domain
+                "
+                kind="warning"
+                :title="$t('settings.user_domain_missing_banner_title')"
+                :description="
+                  $t('settings.user_domain_missing_banner_description')
+                "
+                :showCloseButton="false"
+                class="maxwidth mg-bottom-md"
+              />
+
               <div class="maxwidth mg-bottom-md">
                 <NsComboBox
                   v-model="form.user_domain"
                   :title="$t('settings.user_domain')"
                   :label="$t('settings.user_domain_placeholder')"
                   :helperText="$t('settings.user_domain_helper')"
+                  :warnText="userDomainWarnText"
                   :invalidMessage="errors.user_domain"
                   :options="userDomainOptions"
                   :disabled="loading.configureModule || loading.listUserDomains"
                   :autoFilter="true"
                   :autoHighlight="true"
                   :clearFilterLabel="$t('common.clear_filter')"
+                  @filter="onUserDomainFilter"
                   showItemDescription
                   marginBottomOnOpen
                 />
@@ -605,6 +623,9 @@ export default {
       },
       urlCheckInterval: null,
       isInitialConfigLoad: false,
+      configLoadedOnce: false,
+      moduleConfigured: false,
+      userDomainFilterText: "",
       isAdvancedOpen: false,
       saveSuccessShown: false,
       hostLanIp: "",
@@ -714,6 +735,17 @@ export default {
         });
       }
       return options;
+    },
+    userDomainWarnText() {
+      if (
+        !this.loading.getConfiguration &&
+        !this.loading.listUserDomains &&
+        this.userDomains.length > 0 &&
+        !this.form.user_domain
+      ) {
+        return this.$t("settings.user_domain_unselected_warning");
+      }
+      return undefined;
     },
     wgPortWarning() {
       const portNum = Number(this.form.wg_port);
@@ -934,8 +966,11 @@ export default {
         ),
       };
 
+      this.moduleConfigured = Boolean(cfg.configured);
+      this.configLoadedOnce = true;
       this.setAppConfiguredInStore(Boolean(cfg.configured));
       this.loading.getConfiguration = false;
+      this.maybeAutoSelectSingleDomain();
 
       this.$nextTick(() => {
         this.isInitialConfigLoad = false;
@@ -944,6 +979,37 @@ export default {
     getConfigurationAborted(taskResult, taskContext) {
       console.error(`${taskContext.action} aborted`, taskResult);
       this.loading.getConfiguration = false;
+    },
+    onUserDomainFilter(val) {
+      this.userDomainFilterText = typeof val === "string" ? val.trim() : "";
+    },
+    resolveTypedUserDomain() {
+      if (this.form.user_domain || !this.userDomainFilterText) {
+        return;
+      }
+      const typedLower = this.userDomainFilterText.toLowerCase();
+      const matchedOpt = this.userDomainOptions.find(
+        (opt) =>
+          opt.value.toLowerCase() === typedLower ||
+          opt.label.toLowerCase() === typedLower
+      );
+      if (matchedOpt) {
+        this.form.user_domain = matchedOpt.value;
+      }
+    },
+    maybeAutoSelectSingleDomain() {
+      if (
+        this.configLoadedOnce &&
+        !this.moduleConfigured &&
+        !this.form.user_domain &&
+        this.userDomains.length === 1
+      ) {
+        const single = this.userDomains[0];
+        this.form.user_domain = single.name;
+        if (!this.form.dns_search_domain && single.suggested_dns_search) {
+          this.form.dns_search_domain = single.suggested_dns_search;
+        }
+      }
     },
     async listUserDomains() {
       if (!this.core || !this.instanceName) {
@@ -985,6 +1051,8 @@ export default {
       const out = (taskResult && taskResult.output) || {};
       this.userDomains = Array.isArray(out.domains) ? out.domains : [];
       this.loading.listUserDomains = false;
+
+      this.maybeAutoSelectSingleDomain();
 
       if (this.form.user_domain && !this.form.dns_search_domain) {
         const matched = this.userDomains.find(
@@ -1247,6 +1315,7 @@ export default {
     },
     async configureModule() {
       this.saveSuccessShown = false;
+      this.resolveTypedUserDomain();
       if (!this.validateFormBeforeSubmit()) {
         return;
       }

@@ -743,14 +743,6 @@
     } catch {
       // Ignore storage restrictions
     }
-    const navLangs = Array.isArray(navigator.languages) && navigator.languages.length > 0
-      ? navigator.languages
-      : [navigator.language || "en"];
-    for (const code of navLangs) {
-      const normalized = String(code || "").toLowerCase();
-      if (normalized.startsWith("de")) return "de";
-      if (normalized.startsWith("en")) return "en";
-    }
     return "en";
   }
 
@@ -767,7 +759,7 @@
   }
 
   function t(path, vars = {}) {
-    const dict = I18N[state.lang] || I18N.de;
+    const dict = I18N[state.lang] || I18N.en;
     const parts = path.split(".");
     let cur = dict;
     for (const part of parts) {

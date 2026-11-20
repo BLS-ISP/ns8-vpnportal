@@ -25,6 +25,32 @@
             ({{ instanceName }})
           </span>
         </div>
+
+        <div
+          class="ns8-lang-switch"
+          role="group"
+          :aria-label="$t('common.lang_switch_label')"
+        >
+          <button
+            type="button"
+            class="ns8-lang-btn"
+            :class="{ 'is-active': currentLocale === 'en' }"
+            :aria-pressed="currentLocale === 'en' ? 'true' : 'false'"
+            @click="switchUiLocale('en')"
+          >
+            EN
+          </button>
+          <span class="ns8-lang-sep" aria-hidden="true">|</span>
+          <button
+            type="button"
+            class="ns8-lang-btn"
+            :class="{ 'is-active': currentLocale === 'de' }"
+            :aria-pressed="currentLocale === 'de' ? 'true' : 'false'"
+            @click="switchUiLocale('de')"
+          >
+            DE
+          </button>
+        </div>
       </header>
 
       <router-view />
@@ -62,6 +88,9 @@ export default {
   },
   computed: {
     ...mapState(["instanceName", "instanceLabel", "core", "appName"]),
+    currentLocale() {
+      return (this.$i18n && this.$i18n.locale) || "en";
+    },
   },
   async created() {
     const core = getParentCore();
@@ -100,19 +129,15 @@ export default {
       this.setInstanceNameInStore(detectedInstance);
     }
 
-    // Sync locale from NS8 core or browser settings
-    let preferredLocale = navigator.language || "en";
-    if (core && core.$root && core.$root.$i18n && core.$root.$i18n.locale) {
-      preferredLocale = core.$root.$i18n.locale;
-    } else {
-      try {
-        const storedLang = localStorage.getItem("lang");
-        if (storedLang) {
-          preferredLocale = JSON.parse(storedLang);
-        }
-      } catch (err) {
-        // Ignore invalid storage entry
+    // Default to English ("en") unless the administrator explicitly selected another language
+    let preferredLocale = "en";
+    try {
+      const savedLang = localStorage.getItem("ns8_vpnportal_lang");
+      if (savedLang === "en" || savedLang === "de") {
+        preferredLocale = savedLang;
       }
+    } catch (err) {
+      // Ignore storage restrictions
     }
     await loadLanguageAsync(this.$i18n, preferredLocale);
 
@@ -144,8 +169,17 @@ export default {
       "setInstanceLabelInStore",
       "setCoreInStore",
     ]),
+    async switchUiLocale(newLocale) {
+      const target = newLocale === "de" ? "de" : "en";
+      try {
+        localStorage.setItem("ns8_vpnportal_lang", target);
+      } catch (err) {
+        // Ignore storage restrictions
+      }
+      await loadLanguageAsync(this.$i18n, target);
+    },
     async onCoreLocaleChange(newLocale) {
-      await loadLanguageAsync(this.$i18n, newLocale);
+      await this.switchUiLocale(newLocale);
     },
     async retrieveInstanceLabel() {
       if (!this.core || !this.instanceName) {

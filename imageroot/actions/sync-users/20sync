@@ -33,6 +33,46 @@ if not sock_path.exists() and not configured:
     )
     sys.exit(0)
 
+# Self-heal `secrets/ldap.json` if USER_DOMAIN was saved while ldapproxy port allocation was still pending
+effective_domain = os.environ.get("USER_DOMAIN", "").strip()
+effective_group = os.environ.get("VPN_GROUP", "").strip()
+desired_cfg_path = state_dir / "secrets" / "desired_config.json"
+if not effective_domain and desired_cfg_path.is_file():
+    try:
+        desired_data = json.loads(desired_cfg_path.read_text(encoding="utf-8"))
+        effective_domain = str(desired_data.get("user_domain") or "").strip()
+        if not effective_group:
+            effective_group = str(desired_data.get("vpn_group") or "").strip()
+    except Exception:
+        pass
+
+if effective_domain:
+    ldap_secret_path = state_dir / "secrets" / "ldap.json"
+    needs_refresh = True
+    if ldap_secret_path.is_file():
+        try:
+            existing_ldap = json.loads(ldap_secret_path.read_text(encoding="utf-8"))
+            if (
+                existing_ldap.get("configured")
+                and existing_ldap.get("base_dn")
+                and existing_ldap.get("domain") == effective_domain
+            ):
+                needs_refresh = False
+        except Exception:
+            needs_refresh = True
+
+    if needs_refresh:
+        try:
+            import agent  # type: ignore[import-not-found]
+
+            agent.bind_user_domains([effective_domain])
+        except Exception:
+            pass
+        try:
+            vpn_helpers.write_ldap_secret(effective_domain, effective_group, state_dir=state_dir)
+        except Exception as exc:
+            print(f"Warning: could not refresh ldap.json before sync: {exc}", file=sys.stderr)
+
 try:
     resp = vpn_helpers.admin_api_request("POST", "/api/v1/admin/sync", payload={}, socket_path=sock_path, timeout=30.0)
 except vpn_helpers.AdminApiError as exc:

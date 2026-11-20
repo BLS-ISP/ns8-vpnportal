@@ -25,7 +25,8 @@
     "of_total_pages": "von {total} Seiten",
     "previous_page": "Vorherige Seite",
     "next_page": "Nächste Seite",
-    "page_number": "Seitenzahl"
+    "page_number": "Seitenzahl",
+    "lang_switch_label": "Oberflächensprache"
   },
   "status": {
     "title": "Status",
@@ -68,6 +69,9 @@
     "not_configured_title": "VPN-Modul ist noch nicht eingerichtet",
     "not_configured_description": "Konfigurieren Sie den öffentlichen VPN-Endpoint, die NS8-Benutzerdomäne und die internen Firmennetze, um Einwahlverbindungen zu ermöglichen.",
     "open_settings": "Jetzt konfigurieren",
+    "no_user_domain_warning_title": "Keine AD/LDAP-Benutzerdomäne konfiguriert",
+    "no_user_domain_warning_description": "Die Benutzersynchronisation und die Anmeldung am Self-Service-Portal bleiben inaktiv, bis in den Einstellungen eine NS8-Benutzerdomäne (Active Directory oder OpenLDAP) ausgewählt und gespeichert wurde.",
+    "configure_domain_cta": "Benutzerdomäne auswählen",
     "kpi_authorized_users": "Berechtigte Benutzer",
     "kpi_total_peers": "Eingerichtete Geräte",
     "kpi_online_peers": "Aktuell verbunden",
@@ -108,6 +112,7 @@
     "sync_success_title": "AD/LDAP-Synchronisation abgeschlossen",
     "sync_success_description": "{authorized} berechtigte Benutzer, {active} aktive Geräte, {suspended} gesperrte Geräte.",
     "sync_skipped_title": "AD/LDAP-Synchronisation übersprungen",
+    "sync_skipped_no_domain": "Es ist noch keine NS8 AD/LDAP-Benutzerdomäne zugewiesen. Öffnen Sie Einstellungen -> Benutzerverwaltung, wählen Sie eine Benutzerdomäne aus und klicken Sie auf Konfiguration speichern.",
     "sync_error_title": "AD/LDAP-Server vorübergehend nicht erreichbar",
     "manage_peers": "Benutzer & Geräte verwalten"
   },
@@ -310,6 +315,9 @@
     "user_domain_placeholder": "NS8-Benutzerdomäne auswählen...",
     "user_domain_helper": "In NethServer 8 eingerichtete Active Directory- (Samba) oder OpenLDAP-Domänen (RFC2307).",
     "no_user_domains_warning": "Auf diesem NethServer 8 Cluster wurde noch keine Benutzerdomäne gefunden. Bitte installieren Sie zuerst Samba AD oder OpenLDAP im Software Center.",
+    "user_domain_missing_banner_title": "Keine NS8-Benutzerdomäne zugewiesen",
+    "user_domain_missing_banner_description": "AD/LDAP-Benutzersynchronisation, automatische Kontosperrung und Self-Service-Portal-Login bleiben inaktiv, bis Sie unten eine NS8-Benutzerdomäne auswählen und speichern.",
+    "user_domain_unselected_warning": "Keine Benutzerdomäne ausgewählt – AD/LDAP-Synchronisation bleibt ohne Auswahl deaktiviert.",
     "vpn_group": "Berechtigte VPN-Gruppe",
     "vpn_group_placeholder": "Gruppe auswählen oder Namen eingeben (z. B. vpn-users)...",
     "vpn_group_helper": "Nur Mitglieder dieser Gruppe (inkl. verschachtelter AD-Gruppen) dürfen sich einwählen. Leer lassen, um alle aktiven Domänenbenutzer zuzulassen.",

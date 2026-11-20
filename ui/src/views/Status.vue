@@ -23,6 +23,27 @@
       </cv-column>
     </cv-row>
 
+    <!-- Missing AD/LDAP user domain warning banner -->
+    <cv-row
+      v-if="
+        !loading.getConfiguration &&
+        vpnConfig.configured &&
+        !vpnConfig.user_domain
+      "
+      class="mg-bottom-md"
+    >
+      <cv-column>
+        <NsInlineNotification
+          kind="warning"
+          :title="$t('status.no_user_domain_warning_title')"
+          :description="$t('status.no_user_domain_warning_description')"
+          :actionLabel="$t('status.configure_domain_cta')"
+          @action="goToSettings"
+          :showCloseButton="false"
+        />
+      </cv-column>
+    </cv-row>
+
     <!-- Sync result inline banner -->
     <cv-row v-if="syncBanner.visible" class="mg-bottom-md">
       <cv-column>
@@ -30,6 +51,12 @@
           :kind="syncBanner.kind"
           :title="syncBanner.title"
           :description="syncBanner.description"
+          :actionLabel="
+            syncBanner.showSettingsAction
+              ? $t('status.configure_domain_cta')
+              : ''
+          "
+          @action="goToSettings"
           :showCloseButton="true"
           @close="syncBanner.visible = false"
         />
@@ -616,6 +643,7 @@ export default {
         kind: "success",
         title: "",
         description: "",
+        showSettingsAction: false,
       },
       loading: {
         getStatus: false,
@@ -967,13 +995,15 @@ export default {
           kind: "error",
           title: this.$t("status.sync_error_title"),
           description: out.message || this.$t("status.sync_status_ldap_error"),
+          showSettingsAction: false,
         };
       } else if (out.status === "skipped") {
         this.syncBanner = {
           visible: true,
           kind: "warning",
           title: this.$t("status.sync_skipped_title"),
-          description: out.message || this.$t("status.sync_status_skipped"),
+          description: this.$t("status.sync_skipped_no_domain"),
+          showSettingsAction: true,
         };
       } else {
         this.syncBanner = {
@@ -985,6 +1015,7 @@ export default {
             active: out.active_peers || 0,
             suspended: out.suspended_peers || 0,
           }),
+          showSettingsAction: false,
         };
       }
       this.getConfiguration();

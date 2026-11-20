@@ -1241,3 +1241,53 @@ def test_create_peer_optional_static_assigned_ip(monkeypatch: pytest.MonkeyPatch
     code_409, _, err_409 = execute_action_script("actions/create-peer/20create", monkeypatch, static_req)
     assert code_409 == 1
     assert "409" in err_409 and "10.199.0.10" in err_409
+
+
+def test_ldapproxy_unbound_domain_fallback_and_async_port_allocation(monkeypatch: pytest.MonkeyPatch) -> None:
+    class UnboundThenBoundLdapproxy:
+        calls = 0
+
+        def __init__(self) -> None:
+            self.domains = {
+                "ldap.test.local": {
+                    "schema": "rfc2307",
+                    "location": "internal",
+                    "base_dn": "dc=ldap,dc=test,dc=local",
+                    "bind_dn": "cn=ldapservice,dc=ldap,dc=test,dc=local",
+                    "bind_password": "secret",
+                }
+            }
+
+        def get_domains_list(self) -> list[str]:
+            return list(self.domains.keys())
+
+        def get_domain(self, domain: str) -> dict[str, Any] | None:
+            UnboundThenBoundLdapproxy.calls += 1
+            if UnboundThenBoundLdapproxy.calls < 2:
+                return None
+            return {
+                "host": "127.0.0.1",
+                "port": 20012,
+                **self.domains[domain],
+                "hidden_users": [],
+            }
+
+    # 1. list_user_domains_info reads schema & base_dn from lp.domains even when get_domain() returns None
+    unbound_lp = UnboundThenBoundLdapproxy()
+    UnboundThenBoundLdapproxy.calls = -10
+    listed = vpn_helpers.list_user_domains_info(ldapproxy_instance=unbound_lp)
+    assert len(listed) == 1
+    assert listed[0]["name"] == "ldap.test.local"
+    assert listed[0]["schema"] == "rfc2307"
+    assert listed[0]["base_dn"] == "dc=ldap,dc=test,dc=local"
+
+    # 2. build_ldap_config retries until ns8-ldapproxy allocates listen_port asynchronously
+    UnboundThenBoundLdapproxy.calls = 0
+    monkeypatch.setattr(vpn_helpers, "_get_ldapproxy", lambda inst=None: inst or UnboundThenBoundLdapproxy())
+    monkeypatch.setattr(vpn_helpers.time, "sleep", lambda _s: None)
+    built = vpn_helpers.build_ldap_config("ldap.test.local", "vpn-users", max_wait_seconds=2.0)
+    assert built["configured"] is True
+    assert built["port"] == 20012
+    assert built["schema"] == "rfc2307"
+    assert built["base_dn"] == "dc=ldap,dc=test,dc=local"
+

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,7 +11,7 @@
   <script src="/static/app.js" defer></script>
 </head>
 <body>
-  <a class="skip-link" href="#main-content" data-i18n="nav.skipToContent">Zum Hauptinhalt springen</a>
+  <a class="skip-link" href="#main-content" data-i18n="nav.skipToContent">Skip to main content</a>
 
   <header class="topbar" role="banner">
     <div class="topbar-inner">
@@ -23,7 +23,7 @@
           </svg>
         </span>
         <div class="brand-text">
-          <span class="brand-title" data-i18n="brand.title">Unternehmens-VPN</span>
+          <span class="brand-title" data-i18n="brand.title">Enterprise VPN</span>
           <span id="header-domain-badge" class="brand-domain" hidden></span>
         </div>
       </div>
@@ -49,14 +49,14 @@
               <path d="M13 14l4-4-4-4"></path>
               <path d="M17 10H8"></path>
             </svg>
-            <span data-i18n="nav.logout">Abmelden</span>
+            <span data-i18n="nav.logout">Sign out</span>
           </button>
         </div>
 
         <div class="lang-switch" role="group" data-i18n-aria-label="nav.langGroupLabel">
-          <button type="button" id="lang-btn-de" class="lang-btn" data-lang="de" aria-pressed="true">DE</button>
+          <button type="button" id="lang-btn-en" class="lang-btn" data-lang="en" aria-pressed="true">EN</button>
           <span class="lang-sep" aria-hidden="true">|</span>
-          <button type="button" id="lang-btn-en" class="lang-btn" data-lang="en" aria-pressed="false">EN</button>
+          <button type="button" id="lang-btn-de" class="lang-btn" data-lang="de" aria-pressed="false">DE</button>
         </div>
       </div>
     </div>
@@ -72,7 +72,7 @@
         <div class="skeleton-line skeleton-sub"></div>
         <div class="skeleton-block"></div>
         <div class="skeleton-block"></div>
-        <span class="sr-only" data-i18n="common.loading">Portal wird geladen…</span>
+        <span class="sr-only" data-i18n="common.loading">Loading portal…</span>
       </div>
     </section>
 
@@ -86,10 +86,10 @@
             <line x1="12" y1="16" x2="12.01" y2="16"></line>
           </svg>
         </div>
-        <h1 id="disabled-heading" class="card-heading" data-i18n="disabled.title">Self-Service-Portal nicht verfügbar</h1>
-        <p id="disabled-message" class="card-subtitle" data-i18n="disabled.description">Das VPN-Self-Service-Portal ist derzeit durch die IT-Administration deaktiviert.</p>
+        <h1 id="disabled-heading" class="card-heading" data-i18n="disabled.title">Self-Service Portal Unavailable</h1>
+        <p id="disabled-message" class="card-subtitle" data-i18n="disabled.description">The VPN Self-Service Portal is currently disabled by your IT administrator.</p>
         <div class="form-actions">
-          <button type="button" id="btn-retry-boot" class="btn btn-secondary btn-block" data-i18n="common.retry">Erneut prüfen</button>
+          <button type="button" id="btn-retry-boot" class="btn btn-secondary btn-block" data-i18n="common.retry">Check again</button>
         </div>
       </div>
     </section>
@@ -104,8 +104,8 @@
               <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
             </svg>
           </div>
-          <h1 id="login-heading" class="card-heading" data-i18n="login.title">Am VPN-Portal anmelden</h1>
-          <p id="login-subtitle" class="card-subtitle" data-i18n="login.subtitle">Melden Sie sich mit Ihrem Unternehmens-Benutzerkonto (AD / LDAP) an, um Ihre VPN-Zugänge zu verwalten.</p>
+          <h1 id="login-heading" class="card-heading" data-i18n="login.title">Sign in to VPN Portal</h1>
+          <p id="login-subtitle" class="card-subtitle" data-i18n="login.subtitle">Sign in with your corporate directory account (AD / LDAP) to manage your VPN access profiles.</p>
         </div>
 
         <div id="login-alert" class="alert alert-error" role="alert" hidden></div>
@@ -114,7 +114,7 @@
           <!-- Step 1: Username & Password -->
           <div id="login-step-credentials" class="form-step">
             <div class="field">
-              <label for="login-username" class="field-label" data-i18n="login.usernameLabel">Benutzername</label>
+              <label for="login-username" class="field-label" data-i18n="login.usernameLabel">Username</label>
               <input
                 id="login-username"
                 name="username"
@@ -128,11 +128,11 @@
                 data-i18n-placeholder="login.usernamePlaceholder"
                 required
               >
-              <span class="field-hint" data-i18n="login.usernameHint">Ihr Firmen-Benutzername (z. B. m.mustermann)</span>
+              <span class="field-hint" data-i18n="login.usernameHint">Your corporate directory username</span>
             </div>
 
             <div class="field">
-              <label for="login-password" class="field-label" data-i18n="login.passwordLabel">Passwort</label>
+              <label for="login-password" class="field-label" data-i18n="login.passwordLabel">Password</label>
               <div class="password-input-wrap">
                 <input
                   id="login-password"
@@ -149,7 +149,7 @@
                   aria-pressed="false"
                   data-i18n-aria-label="login.showPassword"
                 >
-                  <span id="login-pw-toggle-label" data-i18n="login.showShort">Anzeigen</span>
+                  <span id="login-pw-toggle-label" data-i18n="login.showShort">Show</span>
                 </button>
               </div>
             </div>
@@ -166,7 +166,7 @@
             </div>
 
             <div class="field">
-              <label for="login-totp-code" class="field-label" data-i18n="login.totpLabel">6-stelliger Authenticator-Code</label>
+              <label for="login-totp-code" class="field-label" data-i18n="login.totpLabel">6-digit authenticator code</label>
               <input
                 id="login-totp-code"
                 name="totp_code"
@@ -178,15 +178,15 @@
                 maxlength="6"
                 placeholder="000000"
               >
-              <span class="field-hint" data-i18n="login.totpHint">Öffnen Sie Ihre Authenticator-App und geben Sie den aktuellen 6-stelligen Code ein.</span>
+              <span class="field-hint" data-i18n="login.totpHint">Open your authenticator app and enter the current 6-digit verification code.</span>
             </div>
           </div>
 
           <div class="form-actions stack-actions">
             <button type="submit" id="btn-login-submit" class="btn btn-primary btn-block">
-              <span id="btn-login-submit-text" data-i18n="login.submitBtn">Anmelden</span>
+              <span id="btn-login-submit-text" data-i18n="login.submitBtn">Sign in</span>
             </button>
-            <button type="button" id="btn-login-back" class="btn btn-ghost btn-block" hidden data-i18n="login.backBtn">Zurück zur Anmeldung</button>
+            <button type="button" id="btn-login-back" class="btn btn-ghost btn-block" hidden data-i18n="login.backBtn">Back to sign-in</button>
           </div>
         </form>
 
@@ -194,7 +194,7 @@
           <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M10 18s6-3 6-7.5V5.2L10 3 4 5.2v5.3C4 15 10 18 10 18z"></path>
           </svg>
-          <span data-i18n="login.securityNote">Geschützte Verbindung · Authentifizierung gegen das zentrale Unternehmensverzeichnis</span>
+          <span data-i18n="login.securityNote">Encrypted connection · Authenticated against corporate directory</span>
         </footer>
       </div>
     </section>
@@ -203,9 +203,9 @@
     <section id="view-totp-mandatory" class="wizard-stage" hidden aria-labelledby="mandatory-totp-heading">
       <div class="card wizard-card">
         <div class="wizard-header">
-          <span class="status-badge badge-warning" data-i18n="totpGate.policyBadge">Pflichtrichtlinie · 2FA erforderlich</span>
-          <h1 id="mandatory-totp-heading" class="card-heading" data-i18n="totpGate.title">Zwei-Faktor-Authentifizierung einrichten</h1>
-          <p class="card-subtitle" data-i18n="totpGate.description">Ihre Organisation verlangt vor dem Erstellen oder Herunterladen von VPN-Profilen die Einrichtung eines zweiten Faktors (TOTP). Dieser Vorgang dauert nur eine Minute.</p>
+          <span class="status-badge badge-warning" data-i18n="totpGate.policyBadge">Mandatory Policy · 2FA Required</span>
+          <h1 id="mandatory-totp-heading" class="card-heading" data-i18n="totpGate.title">Set up Two-Factor Authentication</h1>
+          <p class="card-subtitle" data-i18n="totpGate.description">Your organization requires configuring a second factor (TOTP) before creating or downloading VPN profiles. Setup takes less than a minute.</p>
         </div>
 
         <div id="mandatory-totp-alert" class="alert alert-error" role="alert" hidden></div>
@@ -214,28 +214,28 @@
           <li class="wizard-step">
             <div class="step-num" aria-hidden="true">1</div>
             <div class="step-content">
-              <h2 class="step-title" data-i18n="totpGate.step1Title">Authenticator-App auf dem Smartphone öffnen</h2>
-              <p class="step-desc" data-i18n="totpGate.step1Body">Verwenden Sie z. B. Microsoft Authenticator, Google Authenticator, 2FAS, Ente Auth, FreeOTP oder Apple Passwörter.</p>
+              <h2 class="step-title" data-i18n="totpGate.step1Title">Open an authenticator app on your phone</h2>
+              <p class="step-desc" data-i18n="totpGate.step1Body">Use Microsoft Authenticator, Google Authenticator, 2FAS, Ente Auth, FreeOTP, or Apple Passwords.</p>
             </div>
           </li>
 
           <li class="wizard-step">
             <div class="step-num" aria-hidden="true">2</div>
             <div class="step-content">
-              <h2 class="step-title" data-i18n="totpGate.step2Title">QR-Code scannen oder Schlüssel manuell übernehmen</h2>
+              <h2 class="step-title" data-i18n="totpGate.step2Title">Scan QR code or enter secret manually</h2>
               <div class="totp-enroll-grid">
                 <div class="qr-frame" id="mandatory-totp-qr-frame">
-                  <div id="mandatory-totp-qr-loading" class="qr-placeholder" data-i18n="totpGate.generatingQr">Schlüssel wird erzeugt…</div>
+                  <div id="mandatory-totp-qr-loading" class="qr-placeholder" data-i18n="totpGate.generatingQr">Generating key…</div>
                   <img id="mandatory-totp-qr-img" class="qr-img" width="196" height="196" alt="" hidden>
                 </div>
 
                 <div class="secret-panel">
-                  <p class="step-desc" data-i18n="totpGate.manualHint">Kein Kamera-Scan möglich? Tragen Sie diesen Base32-Schlüssel manuell in Ihrer App ein:</p>
+                  <p class="step-desc" data-i18n="totpGate.manualHint">Cannot scan with a camera? Enter this Base32 secret manually in your app:</p>
                   <div class="secret-box">
                     <code id="mandatory-totp-secret" class="secret-code">—</code>
-                    <button type="button" id="btn-copy-mandatory-secret" class="btn btn-secondary btn-sm" data-i18n="common.copy">Kopieren</button>
+                    <button type="button" id="btn-copy-mandatory-secret" class="btn btn-secondary btn-sm" data-i18n="common.copy">Copy</button>
                   </div>
-                  <button type="button" id="btn-reload-mandatory-totp" class="btn btn-ghost btn-sm" data-i18n="totpGate.regenerateBtn">Neuen Schlüssel anfordern</button>
+                  <button type="button" id="btn-reload-mandatory-totp" class="btn btn-ghost btn-sm" data-i18n="totpGate.regenerateBtn">Generate a new key</button>
                 </div>
               </div>
             </div>
@@ -244,10 +244,10 @@
           <li class="wizard-step">
             <div class="step-num" aria-hidden="true">3</div>
             <div class="step-content">
-              <h2 class="step-title" data-i18n="totpGate.step3Title">6-stelligen Bestätigungscode eingeben</h2>
+              <h2 class="step-title" data-i18n="totpGate.step3Title">Enter 6-digit verification code</h2>
               <form id="mandatory-totp-form" class="totp-verify-inline" novalidate>
                 <div class="field">
-                  <label for="mandatory-totp-code" class="sr-only" data-i18n="login.totpLabel">6-stelliger Authenticator-Code</label>
+                  <label for="mandatory-totp-code" class="sr-only" data-i18n="login.totpLabel">6-digit authenticator code</label>
                   <input
                     id="mandatory-totp-code"
                     type="text"
@@ -260,7 +260,7 @@
                     required
                   >
                 </div>
-                <button type="submit" id="btn-mandatory-totp-submit" class="btn btn-primary" data-i18n="totpGate.verifyBtn">2FA aktivieren &amp; Portal freischalten</button>
+                <button type="submit" id="btn-mandatory-totp-submit" class="btn btn-primary" data-i18n="totpGate.verifyBtn">Enable 2FA &amp; unlock portal</button>
               </form>
             </div>
           </li>
@@ -274,40 +274,40 @@
       <section class="workspace-banner" aria-labelledby="dashboard-heading">
         <div class="workspace-greeting">
           <h1 id="dashboard-heading" class="workspace-title"></h1>
-          <p class="workspace-subtitle" data-i18n="dashboard.subtitle">Verwalten Sie Ihre persönlichen VPN-Geräteprofile für den sicheren Zugriff auf das Unternehmensnetzwerk.</p>
+          <p class="workspace-subtitle" data-i18n="dashboard.subtitle">Manage your personal VPN device profiles for secure access to your corporate network.</p>
         </div>
 
         <div class="workspace-pills">
           <div class="meta-pill" id="meta-endpoint-wrap" hidden>
-            <span class="meta-pill-label" data-i18n="dashboard.serverLabel">VPN-Server</span>
+            <span class="meta-pill-label" data-i18n="dashboard.serverLabel">VPN Server</span>
             <code id="meta-endpoint-value" class="meta-pill-code"></code>
           </div>
           <div class="meta-pill" id="meta-tunnel-wrap">
-            <span class="meta-pill-label" data-i18n="dashboard.routingLabel">Modus</span>
+            <span class="meta-pill-label" data-i18n="dashboard.routingLabel">Mode</span>
             <span id="meta-tunnel-value" class="meta-pill-val"></span>
           </div>
           <div class="meta-pill" id="meta-totp-wrap" hidden>
-            <span class="meta-pill-label" data-i18n="dashboard.twoFactorLabel">2FA-Schutz</span>
+            <span class="meta-pill-label" data-i18n="dashboard.twoFactorLabel">2FA Protection</span>
             <span id="meta-totp-value" class="meta-pill-val"></span>
           </div>
         </div>
       </section>
 
-      <!-- Section 1: Standard-Profil – WireGuard -->
+      <!-- Section 1: Standard Profile – WireGuard -->
       <section class="panel panel-wg" aria-labelledby="wg-section-heading">
         <div class="panel-header">
           <div class="panel-title-group">
             <div class="panel-eyebrow">
-              <span class="status-badge badge-brand" data-i18n="wg.recommendedBadge">Empfohlen</span>
-              <span class="eyebrow-note" data-i18n="wg.protocolNote">UDP · Höchste Geschwindigkeit &amp; nahtloser WLAN/Mobilfunk-Wechsel</span>
+              <span class="status-badge badge-brand" data-i18n="wg.recommendedBadge">Recommended</span>
+              <span class="eyebrow-note" data-i18n="wg.protocolNote">UDP · Maximum speed &amp; seamless Wi-Fi / mobile roaming</span>
             </div>
-            <h2 id="wg-section-heading" class="panel-title" data-i18n="wg.title">Standard-Profil – WireGuard</h2>
-            <p class="panel-lead" data-i18n="wg.subtitle">Jedes Endgerät erhält einen eigenen kryptografischen Schlüssel. Wählen Sie Ihr Gerät aus, um sofort einen QR-Code oder eine Konfigurationsdatei zu erhalten.</p>
+            <h2 id="wg-section-heading" class="panel-title" data-i18n="wg.title">Standard Profile – WireGuard</h2>
+            <p class="panel-lead" data-i18n="wg.subtitle">Each device receives its own cryptographic keypair. Add a device below to immediately scan a QR code or download a configuration file.</p>
           </div>
 
           <div class="quota-box" id="wg-quota-box">
             <div class="quota-header">
-              <span class="quota-title" data-i18n="wg.quotaLabel">Gerätekontingent</span>
+              <span class="quota-title" data-i18n="wg.quotaLabel">Device Quota</span>
               <span id="wg-quota-count" class="quota-count">0 / 0</span>
             </div>
             <div
@@ -325,7 +325,7 @@
         <!-- Add Device Form -->
         <form id="create-device-form" class="create-device-bar" novalidate>
           <div class="create-device-top">
-            <label for="device-name-input" class="field-label" data-i18n="wg.newDeviceLabel">Neues Gerät einrichten</label>
+            <label for="device-name-input" class="field-label" data-i18n="wg.newDeviceLabel">Add a new device</label>
             <div id="device-chips-row" class="chip-row" role="group" data-i18n-aria-label="wg.quickChipsLabel"></div>
           </div>
 
@@ -345,18 +345,18 @@
                 <line x1="10" y1="4" x2="10" y2="16"></line>
                 <line x1="4" y1="10" x2="16" y2="10"></line>
               </svg>
-              <span data-i18n="wg.createBtn">Gerät hinzufügen</span>
+              <span data-i18n="wg.createBtn">Add device</span>
             </button>
           </div>
 
-          <p id="create-device-hint" class="field-hint" data-i18n="wg.nameRulesHint">Erlaubt sind Buchstaben, Zahlen, Leerzeichen sowie . - _ ( ) (max. 64 Zeichen).</p>
+          <p id="create-device-hint" class="field-hint" data-i18n="wg.nameRulesHint">Letters, numbers, spaces, and . - _ ( ) are allowed (max. 64 characters).</p>
           <div id="create-device-alert" class="alert alert-error" role="alert" hidden></div>
         </form>
 
         <!-- Existing Devices List -->
         <div class="devices-section">
           <div class="subsection-bar">
-            <h3 class="subsection-title" data-i18n="wg.devicesHeading">Ihre registrierten Geräte</h3>
+            <h3 class="subsection-title" data-i18n="wg.devicesHeading">Your registered devices</h3>
             <span id="wg-online-summary" class="subsection-meta"></span>
           </div>
 
@@ -368,8 +368,8 @@
                 <line x1="12" y1="18" x2="12" y2="21"></line>
               </svg>
             </div>
-            <h4 class="empty-title" data-i18n="wg.emptyTitle">Noch kein Gerät eingerichtet</h4>
-            <p class="empty-desc" data-i18n="wg.emptyBody">Wählen Sie oben einen Gerätenamen wie „Arbeits-Laptop“ oder „iPhone“ aus und klicken Sie auf „Gerät hinzufügen“.</p>
+            <h4 class="empty-title" data-i18n="wg.emptyTitle">No devices registered yet</h4>
+            <p class="empty-desc" data-i18n="wg.emptyBody">Pick a device name above such as "Work Laptop" or "iPhone" and click "Add device".</p>
           </div>
 
           <div id="wg-devices-grid" class="devices-grid" role="list"></div>
@@ -381,14 +381,14 @@
         <!-- OpenVPN Fallback Card -->
         <section id="panel-openvpn" class="panel" hidden aria-labelledby="ovpn-section-heading">
           <div class="panel-eyebrow">
-            <span class="status-badge badge-neutral" data-i18n="ovpn.fallbackBadge">TCP / Gast-WLAN Fallback</span>
+            <span class="status-badge badge-neutral" data-i18n="ovpn.fallbackBadge">TCP / Guest Wi-Fi Fallback</span>
           </div>
-          <h2 id="ovpn-section-heading" class="panel-title" data-i18n="ovpn.title">Kompatibilitäts- &amp; Hotel-Profil – OpenVPN</h2>
-          <p class="panel-lead" data-i18n="ovpn.description">Ideal für Hotels, Kliniken, Messen und Gast-WLANs, in denen UDP blockiert ist. Verbindet per Passwortabfrage.</p>
+          <h2 id="ovpn-section-heading" class="panel-title" data-i18n="ovpn.title">Compatibility &amp; Hotel Profile – OpenVPN</h2>
+          <p class="panel-lead" data-i18n="ovpn.description">Designed for hotels, clinics, conferences, and restricted Wi-Fi networks where UDP traffic is blocked. Authenticates with your live password.</p>
 
           <ul class="feature-bullets">
-            <li data-i18n="ovpn.bulletQuota">Zählt nicht gegen Ihr WireGuard-Gerätekontingent und kann auf mehreren Geräten hinterlegt werden.</li>
-            <li data-i18n="ovpn.bulletAuth">Fragt beim Verbindungsaufbau Ihren AD/LDAP-Benutzernamen und Ihr aktuelles Passwort ab.</li>
+            <li data-i18n="ovpn.bulletQuota">Does not count toward your WireGuard device quota and can be imported on multiple devices.</li>
+            <li data-i18n="ovpn.bulletAuth">Prompts for your corporate AD/LDAP username and current password when connecting.</li>
           </ul>
 
           <!-- TOTP on OpenVPN Connect Callout -->
@@ -399,14 +399,14 @@
                 <line x1="10" y1="8" x2="10" y2="12"></line>
                 <line x1="10" y1="14.8" x2="10.01" y2="14.8"></line>
               </svg>
-              <strong data-i18n="ovpn.totpRequiredTitle">Wichtig beim Verbinden: Passwort + 6-stelliger 2FA-Code</strong>
+              <strong data-i18n="ovpn.totpRequiredTitle">Important when connecting: Password + 6-digit 2FA code</strong>
             </div>
-            <p class="callout-body" data-i18n="ovpn.totpRequiredBody">Für OpenVPN ist die Zwei-Faktor-Prüfung aktiviert. Hängen Sie beim Verbinden Ihren aktuellen 6-stelligen Authenticator-Code direkt und ohne Leerzeichen an Ihr AD-Passwort an:</p>
+            <p class="callout-body" data-i18n="ovpn.totpRequiredBody">Two-factor verification is enabled for OpenVPN. When connecting, append your current 6-digit authenticator code directly after your AD password without spaces:</p>
             <div class="callout-example">
-              <span class="callout-example-label" data-i18n="ovpn.passwordFieldLabel">Eingabe im Passwortfeld:</span>
-              <code data-i18n="ovpn.passwordFieldExample">IhrPasswort123456</code>
+              <span class="callout-example-label" data-i18n="ovpn.passwordFieldLabel">Enter in password field:</span>
+              <code data-i18n="ovpn.passwordFieldExample">YourPassword123456</code>
             </div>
-            <button type="button" id="btn-ovpn-setup-totp" class="btn btn-secondary btn-sm" hidden data-i18n="ovpn.enrollFirstBtn">Jetzt zuerst 2FA einrichten</button>
+            <button type="button" id="btn-ovpn-setup-totp" class="btn btn-secondary btn-sm" hidden data-i18n="ovpn.enrollFirstBtn">Set up 2FA first</button>
           </div>
 
           <div id="ovpn-alert" class="alert alert-error" role="alert" hidden></div>
@@ -418,7 +418,7 @@
                 <path d="M6.5 9.5L10 13l3.5-3.5"></path>
                 <path d="M4 16.5h12"></path>
               </svg>
-              <span data-i18n="ovpn.downloadBtn">.ovpn-Profil herunterladen</span>
+              <span data-i18n="ovpn.downloadBtn">Download .ovpn profile</span>
             </button>
           </div>
         </section>
@@ -428,16 +428,16 @@
           <div class="panel-eyebrow">
             <span id="totp-card-badge" class="status-badge badge-neutral"></span>
           </div>
-          <h2 id="totp-card-heading" class="panel-title" data-i18n="security.title">Zwei-Faktor-Authentifizierung (2FA)</h2>
+          <h2 id="totp-card-heading" class="panel-title" data-i18n="security.title">Two-Factor Authentication (2FA)</h2>
           <p id="totp-card-desc" class="panel-lead"></p>
 
           <div id="totp-policy-note" class="callout callout-neutral" hidden>
-            <p class="callout-body" data-i18n="security.requiredPolicyNote">2FA ist durch Ihre Unternehmensrichtlinie dauerhaft vorgeschrieben. Bei Smartphone-Verlust kann Ihr IT-Helpdesk den zweiten Faktor zurücksetzen.</p>
+            <p class="callout-body" data-i18n="security.requiredPolicyNote">2FA is enforced by corporate security policy. If you lose your phone, please contact your IT helpdesk to reset your second factor.</p>
           </div>
 
           <div id="totp-optional-actions" class="panel-footer" hidden>
-            <button type="button" id="btn-open-totp-enable" class="btn btn-primary" hidden data-i18n="security.enableBtn">2FA jetzt aktivieren</button>
-            <button type="button" id="btn-open-totp-disable" class="btn btn-danger-outline" hidden data-i18n="security.disableBtn">2FA deaktivieren</button>
+            <button type="button" id="btn-open-totp-enable" class="btn btn-primary" hidden data-i18n="security.enableBtn">Enable 2FA now</button>
+            <button type="button" id="btn-open-totp-disable" class="btn btn-danger-outline" hidden data-i18n="security.disableBtn">Disable 2FA</button>
           </div>
         </section>
       </div>
@@ -446,8 +446,8 @@
       <section class="panel panel-guides" aria-labelledby="guides-heading">
         <div class="panel-header">
           <div class="panel-title-group">
-            <h2 id="guides-heading" class="panel-title" data-i18n="guides.title">Schritt-für-Schritt-Einrichtung &amp; Offizielle Apps</h2>
-            <p class="panel-lead" data-i18n="guides.subtitle">Wählen Sie Ihr Betriebssystem für die passende Kurzanleitung und die offiziellen App-Links.</p>
+            <h2 id="guides-heading" class="panel-title" data-i18n="guides.title">Step-by-Step Setup &amp; Official Apps</h2>
+            <p class="panel-lead" data-i18n="guides.subtitle">Select your operating system for tailored setup instructions and official client download links.</p>
           </div>
         </div>
 
@@ -483,21 +483,21 @@
 
       <div class="modal-body">
         <div class="callout callout-neutral">
-          <p class="callout-body" data-i18n="wgModal.confidentialNotice">Vertrauliches Zugangsprofil: Geben Sie diesen QR-Code oder die .conf-Datei nicht an Dritte weiter.</p>
+          <p class="callout-body" data-i18n="wgModal.confidentialNotice">Confidential access profile: Do not share this QR code or .conf file with anyone else.</p>
         </div>
 
         <div class="wg-modal-columns">
           <div class="wg-modal-col">
-            <h3 class="col-heading" data-i18n="wgModal.qrHeading">Smartphone &amp; Tablet (QR-Code)</h3>
+            <h3 class="col-heading" data-i18n="wgModal.qrHeading">Smartphone &amp; Tablet (QR Code)</h3>
             <div class="qr-frame qr-frame-centered">
               <img id="modal-wg-qr-img" class="qr-img" width="204" height="204" alt="">
             </div>
-            <p class="col-hint" data-i18n="wgModal.qrHint">In der WireGuard-App auf „+“ tippen und „Aus QR-Code erstellen“ wählen.</p>
+            <p class="col-hint" data-i18n="wgModal.qrHint">Open the WireGuard app, tap "+" and choose "Create from QR code".</p>
           </div>
 
           <div class="wg-modal-col">
-            <h3 class="col-heading" data-i18n="wgModal.fileHeading">Computer (.conf-Konfigurationsdatei)</h3>
-            <p class="col-hint" data-i18n="wgModal.fileHint">Laden Sie die Konfigurationsdatei herunter und importieren Sie sie mit einem Klick in das offizielle WireGuard-Programm.</p>
+            <h3 class="col-heading" data-i18n="wgModal.fileHeading">Computer (.conf Configuration File)</h3>
+            <p class="col-hint" data-i18n="wgModal.fileHint">Download the configuration file and import it with one click into the official WireGuard desktop client.</p>
 
             <div class="file-download-card">
               <code id="modal-wg-filename" class="file-badge">vpn.conf</code>
@@ -507,18 +507,18 @@
                   <path d="M6.5 9.5L10 13l3.5-3.5"></path>
                   <path d="M4 16.5h12"></path>
                 </svg>
-                <span data-i18n="wgModal.downloadBtn">.conf-Datei herunterladen</span>
+                <span data-i18n="wgModal.downloadBtn">Download .conf file</span>
               </button>
             </div>
           </div>
         </div>
 
         <details id="modal-wg-details" class="config-details">
-          <summary class="config-summary" data-i18n="wgModal.previewSummary">Konfigurationstext einblenden / kopieren</summary>
+          <summary class="config-summary" data-i18n="wgModal.previewSummary">Show / copy configuration text</summary>
           <div class="config-preview-wrap">
             <div class="config-preview-bar">
               <span class="config-preview-label">WireGuard (.conf)</span>
-              <button type="button" id="btn-copy-wg-conf" class="btn btn-secondary btn-sm" data-i18n="common.copy">Kopieren</button>
+              <button type="button" id="btn-copy-wg-conf" class="btn btn-secondary btn-sm" data-i18n="common.copy">Copy</button>
             </div>
             <pre class="config-pre"><code id="modal-wg-conf-text"></code></pre>
           </div>
@@ -526,14 +526,14 @@
       </div>
 
       <div class="modal-footer">
-        <button type="button" id="btn-done-wg-modal" class="btn btn-secondary" data-i18n="common.done">Fertig</button>
+        <button type="button" id="btn-done-wg-modal" class="btn btn-secondary" data-i18n="common.done">Done</button>
       </div>
     </div>
 
     <!-- 2. Delete Device Confirmation Modal -->
     <div id="modal-delete-device" class="modal-dialog modal-sm" role="dialog" aria-modal="true" aria-labelledby="modal-delete-title" hidden>
       <div class="modal-header">
-        <h2 id="modal-delete-title" class="modal-title" data-i18n="deleteModal.title">Gerät entfernen</h2>
+        <h2 id="modal-delete-title" class="modal-title" data-i18n="deleteModal.title">Remove device</h2>
         <button type="button" id="btn-close-delete-modal" class="modal-close-btn" data-i18n-aria-label="common.close">
           <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
             <line x1="5" y1="5" x2="15" y2="15"></line>
@@ -543,7 +543,7 @@
       </div>
 
       <div class="modal-body">
-        <p class="modal-text" data-i18n="deleteModal.body">Möchten Sie dieses Gerät wirklich entfernen? Eine bestehende VPN-Verbindung dieses Geräts wird sofort getrennt und das Profil dauerhaft ungültig gemacht.</p>
+        <p class="modal-text" data-i18n="deleteModal.body">Are you sure you want to remove this device? Any active VPN tunnel on this device will be disconnected immediately and its profile permanently revoked.</p>
         <div class="target-device-pill">
           <strong id="modal-delete-device-name"></strong>
           <code id="modal-delete-device-ip"></code>
@@ -552,15 +552,15 @@
       </div>
 
       <div class="modal-footer">
-        <button type="button" id="btn-cancel-delete-modal" class="btn btn-secondary" data-i18n="common.cancel">Abbrechen</button>
-        <button type="button" id="btn-confirm-delete-device" class="btn btn-danger" data-i18n="deleteModal.confirmBtn">Gerät entfernen</button>
+        <button type="button" id="btn-cancel-delete-modal" class="btn btn-secondary" data-i18n="common.cancel">Cancel</button>
+        <button type="button" id="btn-confirm-delete-device" class="btn btn-danger" data-i18n="deleteModal.confirmBtn">Remove device</button>
       </div>
     </div>
 
     <!-- 3. Optional 2FA Setup Modal -->
     <div id="modal-totp-enable" class="modal-dialog modal-md" role="dialog" aria-modal="true" aria-labelledby="modal-totp-enable-title" hidden>
       <div class="modal-header">
-        <h2 id="modal-totp-enable-title" class="modal-title" data-i18n="totpEnableModal.title">Zwei-Faktor-Authentifizierung aktivieren</h2>
+        <h2 id="modal-totp-enable-title" class="modal-title" data-i18n="totpEnableModal.title">Enable Two-Factor Authentication</h2>
         <button type="button" id="btn-close-totp-enable" class="modal-close-btn" data-i18n-aria-label="common.close">
           <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
             <line x1="5" y1="5" x2="15" y2="15"></line>
@@ -571,25 +571,25 @@
 
       <form id="modal-totp-enable-form" novalidate>
         <div class="modal-body">
-          <p class="modal-text" data-i18n="totpEnableModal.instructions">Scannen Sie den QR-Code mit Ihrer Authenticator-App (z. B. Microsoft/Google Authenticator, 2FAS) und bestätigen Sie anschließend den 6-stelligen Code.</p>
+          <p class="modal-text" data-i18n="totpEnableModal.instructions">Scan the QR code with your authenticator app (e.g. Microsoft/Google Authenticator, 2FAS) and enter the 6-digit verification code below.</p>
 
           <div id="modal-totp-enable-alert" class="alert alert-error" role="alert" hidden></div>
 
           <div class="totp-enroll-grid">
             <div class="qr-frame">
-              <div id="modal-totp-qr-loading" class="qr-placeholder" data-i18n="totpGate.generatingQr">Schlüssel wird erzeugt…</div>
+              <div id="modal-totp-qr-loading" class="qr-placeholder" data-i18n="totpGate.generatingQr">Generating key…</div>
               <img id="modal-totp-qr-img" class="qr-img" width="184" height="184" alt="" hidden>
             </div>
 
             <div class="secret-panel">
-              <span class="field-label" data-i18n="totpEnableModal.secretLabel">Manueller Base32-Schlüssel</span>
+              <span class="field-label" data-i18n="totpEnableModal.secretLabel">Manual Base32 Secret</span>
               <div class="secret-box">
                 <code id="modal-totp-secret" class="secret-code">—</code>
-                <button type="button" id="btn-copy-modal-secret" class="btn btn-secondary btn-sm" data-i18n="common.copy">Kopieren</button>
+                <button type="button" id="btn-copy-modal-secret" class="btn btn-secondary btn-sm" data-i18n="common.copy">Copy</button>
               </div>
 
               <div class="field">
-                <label for="modal-totp-enable-code" class="field-label" data-i18n="login.totpLabel">6-stelliger Authenticator-Code</label>
+                <label for="modal-totp-enable-code" class="field-label" data-i18n="login.totpLabel">6-digit authenticator code</label>
                 <input
                   id="modal-totp-enable-code"
                   type="text"
@@ -607,8 +607,8 @@
         </div>
 
         <div class="modal-footer">
-          <button type="button" id="btn-cancel-totp-enable" class="btn btn-secondary" data-i18n="common.cancel">Abbrechen</button>
-          <button type="submit" id="btn-submit-totp-enable" class="btn btn-primary" data-i18n="totpEnableModal.confirmBtn">Code prüfen &amp; aktivieren</button>
+          <button type="button" id="btn-cancel-totp-enable" class="btn btn-secondary" data-i18n="common.cancel">Cancel</button>
+          <button type="submit" id="btn-submit-totp-enable" class="btn btn-primary" data-i18n="totpEnableModal.confirmBtn">Verify &amp; enable</button>
         </div>
       </form>
     </div>
@@ -616,7 +616,7 @@
     <!-- 4. Optional 2FA Disable Modal -->
     <div id="modal-totp-disable" class="modal-dialog modal-sm" role="dialog" aria-modal="true" aria-labelledby="modal-totp-disable-title" hidden>
       <div class="modal-header">
-        <h2 id="modal-totp-disable-title" class="modal-title" data-i18n="totpDisableModal.title">2FA deaktivieren</h2>
+        <h2 id="modal-totp-disable-title" class="modal-title" data-i18n="totpDisableModal.title">Disable 2FA</h2>
         <button type="button" id="btn-close-totp-disable" class="modal-close-btn" data-i18n-aria-label="common.close">
           <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
             <line x1="5" y1="5" x2="15" y2="15"></line>
@@ -627,13 +627,13 @@
 
       <form id="modal-totp-disable-form" novalidate>
         <div class="modal-body">
-          <p class="modal-text" data-i18n="totpDisableModal.description">Zur Sicherheitsbestätigung geben Sie bitte Ihr aktuelles Unternehmens-Passwort sowie einen gültigen 6-stelligen Authenticator-Code ein.</p>
+          <p class="modal-text" data-i18n="totpDisableModal.description">To confirm, please enter your current corporate password together with a valid 6-digit authenticator code.</p>
 
           <div id="modal-totp-disable-alert" class="alert alert-error" role="alert" hidden></div>
 
           <div class="stack-form">
             <div class="field">
-              <label for="modal-totp-disable-password" class="field-label" data-i18n="login.passwordLabel">Passwort</label>
+              <label for="modal-totp-disable-password" class="field-label" data-i18n="login.passwordLabel">Password</label>
               <input
                 id="modal-totp-disable-password"
                 type="password"
@@ -644,7 +644,7 @@
             </div>
 
             <div class="field">
-              <label for="modal-totp-disable-code" class="field-label" data-i18n="login.totpLabel">6-stelliger Authenticator-Code</label>
+              <label for="modal-totp-disable-code" class="field-label" data-i18n="login.totpLabel">6-digit authenticator code</label>
               <input
                 id="modal-totp-disable-code"
                 type="text"
@@ -661,8 +661,8 @@
         </div>
 
         <div class="modal-footer">
-          <button type="button" id="btn-cancel-totp-disable" class="btn btn-secondary" data-i18n="common.cancel">Abbrechen</button>
-          <button type="submit" id="btn-submit-totp-disable" class="btn btn-danger" data-i18n="totpDisableModal.confirmBtn">2FA deaktivieren</button>
+          <button type="button" id="btn-cancel-totp-disable" class="btn btn-secondary" data-i18n="common.cancel">Cancel</button>
+          <button type="submit" id="btn-submit-totp-disable" class="btn btn-danger" data-i18n="totpDisableModal.confirmBtn">Disable 2FA</button>
         </div>
       </form>
     </div>

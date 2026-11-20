@@ -25,7 +25,8 @@
     "of_total_pages": "of {total} pages",
     "previous_page": "Previous page",
     "next_page": "Next page",
-    "page_number": "Page number"
+    "page_number": "Page number",
+    "lang_switch_label": "UI language"
   },
   "status": {
     "title": "Status",
@@ -68,6 +69,9 @@
     "not_configured_title": "VPN module is not configured yet",
     "not_configured_description": "Configure the public VPN endpoint, NS8 user domain, and internal network routing to start accepting roadwarrior connections.",
     "open_settings": "Configure VPN now",
+    "no_user_domain_warning_title": "No AD/LDAP user domain configured",
+    "no_user_domain_warning_description": "User synchronization and Self-Service Portal sign-in remain inactive until an NS8 user domain (Active Directory or OpenLDAP) is selected and saved in Settings.",
+    "configure_domain_cta": "Select user domain",
     "kpi_authorized_users": "Authorized users",
     "kpi_total_peers": "Configured devices",
     "kpi_online_peers": "Currently connected",
@@ -108,6 +112,7 @@
     "sync_success_title": "AD/LDAP synchronization completed",
     "sync_success_description": "{authorized} authorized users, {active} active devices, {suspended} suspended devices.",
     "sync_skipped_title": "AD/LDAP synchronization skipped",
+    "sync_skipped_no_domain": "No NS8 AD/LDAP user domain is configured yet. Open Settings -> User Management, select a user domain, and click Save configuration.",
     "sync_error_title": "AD/LDAP server temporarily unreachable",
     "manage_peers": "Manage users & devices"
   },
@@ -310,6 +315,9 @@
     "user_domain_placeholder": "Select NS8 user domain...",
     "user_domain_helper": "Active Directory (Samba) and OpenLDAP (RFC2307) domains registered in NethServer 8.",
     "no_user_domains_warning": "No user domains were found on this NethServer 8 cluster. Install Samba AD or OpenLDAP in Software Center first.",
+    "user_domain_missing_banner_title": "No NS8 user domain assigned",
+    "user_domain_missing_banner_description": "AD/LDAP user synchronization, automatic account deactivation, and Self-Service Portal login will stay inactive until you select an NS8 user domain below and save.",
+    "user_domain_unselected_warning": "No user domain selected — AD/LDAP sync is disabled until you pick a domain from the list.",
     "vpn_group": "Authorized VPN group",
     "vpn_group_placeholder": "Select group or enter group name (e.g. vpn-users)...",
     "vpn_group_helper": "Only members of this group (including nested Active Directory groups) are authorized. Leave empty to allow all active users of the selected domain.",

@@ -996,6 +996,8 @@ def build_ldap_config(
     user_domain: str,
     vpn_group: str,
     ldapproxy_instance: Any = None,
+    *,
+    max_wait_seconds: float = 6.0,
 ) -> dict[str, Any]:
     """Build the `state/secrets/ldap.json` payload from NS8 `Ldapproxy`."""
     domain = (user_domain or "").strip()
@@ -1018,13 +1020,33 @@ def build_ldap_config(
     lp = _get_ldapproxy(ldapproxy_instance)
     dom_info = lp.get_domain(domain)
 
+    # Right after `agent.bind_user_domains([domain])`, ns8-ldapproxy allocates
+    # `listen_port` asynchronously via Redis Pub/Sub (`module-domain-changed`).
+    # Poll briefly with fresh Ldapproxy instances until `get_domain()` succeeds.
+    if dom_info is None and ldapproxy_instance is None and max_wait_seconds > 0:
+        deadline = time.monotonic() + max_wait_seconds
+        while time.monotonic() < deadline:
+            time.sleep(0.25)
+            lp = _get_ldapproxy(None)
+            dom_info = lp.get_domain(domain)
+            if dom_info is not None:
+                break
+
+    if not isinstance(dom_info, dict):
+        raw_domains = getattr(lp, "domains", None)
+        fallback = raw_domains.get(domain) if isinstance(raw_domains, dict) else None
+        dom_info = dict(fallback) if isinstance(fallback, dict) else {}
+
+    base_dn = str(dom_info.get("base_dn") or "").strip()
+    port_raw = dom_info.get("port") or dom_info.get("listen_port") or 389
+
     return {
-        "configured": True,
+        "configured": bool(base_dn),
         "domain": domain,
         "host": str(dom_info.get("host") or "127.0.0.1"),
-        "port": int(dom_info.get("port") or 389),
+        "port": int(port_raw),
         "schema": str(dom_info.get("schema") or "ad"),
-        "base_dn": str(dom_info.get("base_dn") or ""),
+        "base_dn": base_dn,
         "bind_dn": str(dom_info.get("bind_dn") or ""),
         "bind_password": str(dom_info.get("bind_password") or ""),
         "vpn_group": group,
@@ -1050,9 +1072,14 @@ def list_user_domains_info(ldapproxy_instance: Any = None) -> list[dict[str, str
     """Return all configured NS8 user domains with metadata and DNS search suggestion."""
     lp = _get_ldapproxy(ldapproxy_instance)
     names = sorted(lp.get_domains_list() or [])
+    raw_domains = getattr(lp, "domains", None)
     domains: list[dict[str, str]] = []
     for name in names:
-        info = lp.get_domain(name) or {}
+        cached_entry = raw_domains.get(name) if isinstance(raw_domains, dict) else None
+        if isinstance(cached_entry, dict) and cached_entry.get("base_dn"):
+            info: dict[str, Any] = cached_entry
+        else:
+            info = lp.get_domain(name) or (cached_entry if isinstance(cached_entry, dict) else {})
         base_dn = str(info.get("base_dn") or "")
         if "location" in info and info["location"]:
             location = str(info["location"])
