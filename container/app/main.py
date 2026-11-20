@@ -49,7 +49,14 @@ async def serve_async(settings: Settings | None = None) -> None:
         sock_path.unlink()
 
     service = VPNControllerService(cfg_settings)
-    await service.startup_reconcile()
+    try:
+        await service.startup_reconcile()
+    except Exception as exc:
+        logger.error(
+            "Initial startup_reconcile encountered an error (continuing to bind admin.sock): %s",
+            exc,
+            exc_info=True,
+        )
     service.start_background_scheduler()
 
     admin_app = create_admin_app(service, run_lifecycle=False)

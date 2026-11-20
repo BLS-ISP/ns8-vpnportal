@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 from .config import (
     CLUSTER_RESERVED_INTERFACE,
     DEFAULT_CLUSTER_WG_CIDR,
@@ -17,8 +19,22 @@ from .ipam import (
 from .wireguard import CommandRunner, _guard_not_cluster_interface
 
 
-def _format_nft_set(items: list[str]) -> str:
-    return "{ " + ", ".join(items) + " }"
+def _sanitize_chain_suffix(iface: str) -> str:
+    return re.sub(r"[^a-zA-Z0-9_]", "_", iface)
+
+
+def _append_source_guard_rule(
+    lines: list[str],
+    *,
+    iface: str,
+    allowed_src_cidrs: list[str],
+    primary_net_str: str,
+    src_guard_chain: str | None,
+) -> None:
+    if len(allowed_src_cidrs) == 1:
+        lines.append(f'        iifname "{iface}" ip saddr != {primary_net_str} drop')
+    elif src_guard_chain:
+        lines.append(f'        iifname "{iface}" jump {src_guard_chain}')
 
 
 def _append_tunnel_input_rules(
@@ -27,6 +43,7 @@ def _append_tunnel_input_rules(
     iface: str,
     allowed_src_cidrs: list[str],
     primary_net_str: str,
+    src_guard_chain: str | None,
     server_ip: str,
     tunnel_mode: str,
     clean_cidrs: list[str],
@@ -39,24 +56,23 @@ def _append_tunnel_input_rules(
         lines.append(f'        iifname "{iface}" ip daddr {c_cidr} drop')
     lines.append(f'        iifname "{iface}" tcp dport 6379 drop')
     lines.append(f'        iifname "{iface}" udp dport {int(cluster_wg_port)} drop')
-    if len(allowed_src_cidrs) == 1:
-        lines.append(f'        iifname "{iface}" ip saddr != {primary_net_str} drop')
-    else:
-        lines.append(
-            f'        iifname "{iface}" ip saddr != {_format_nft_set(allowed_src_cidrs)} drop'
-        )
+    _append_source_guard_rule(
+        lines,
+        iface=iface,
+        allowed_src_cidrs=allowed_src_cidrs,
+        primary_net_str=primary_net_str,
+        src_guard_chain=src_guard_chain,
+    )
     lines.append(f'        iifname "{iface}" ct state established,related accept')
     lines.append(f'        iifname "{iface}" ip daddr {server_ip} accept')
 
-    if clean_dns:
-        dns_set = _format_nft_set(clean_dns)
-        lines.append(f'        iifname "{iface}" ip daddr {dns_set} udp dport 53 accept')
-        lines.append(f'        iifname "{iface}" ip daddr {dns_set} tcp dport 53 accept')
+    for dns_ip in clean_dns:
+        lines.append(f'        iifname "{iface}" ip daddr {dns_ip} udp dport 53 accept')
+        lines.append(f'        iifname "{iface}" ip daddr {dns_ip} tcp dport 53 accept')
 
     if tunnel_mode == "split":
-        if clean_cidrs:
-            cidr_set = _format_nft_set(clean_cidrs)
-            lines.append(f'        iifname "{iface}" ip daddr {cidr_set} accept')
+        for dest_cidr in clean_cidrs:
+            lines.append(f'        iifname "{iface}" ip daddr {dest_cidr} accept')
         lines.append(f'        iifname "{iface}" drop')
     else:
         lines.append(f'        iifname "{iface}" accept')
@@ -68,6 +84,7 @@ def _append_tunnel_forward_rules(
     iface: str,
     allowed_src_cidrs: list[str],
     primary_net_str: str,
+    src_guard_chain: str | None,
     server_ip: str,
     tunnel_mode: str,
     allowed_dest_cidrs: list[str],
@@ -90,22 +107,20 @@ def _append_tunnel_forward_rules(
     lines.append(f'        iifname "{iface}" ip daddr 127.0.0.0/8 drop')
     lines.append(f'        iifname "{iface}" tcp dport 6379 drop')
 
-    # Allow Hairpin/Routing into active Site-to-Site remote CIDRs before peer-to-peer drop
-    if s2s_dest_cidrs:
-        s2s_set = _format_nft_set(s2s_dest_cidrs)
-        lines.append(
-            f'        oifname "{iface}" ip daddr {s2s_set} accept'
-        )
+    # Allow routing into active Site-to-Site remote CIDRs before roadwarrior peer-to-peer drop
+    for s2s_cidr in s2s_dest_cidrs:
+        lines.append(f'        oifname "{iface}" ip daddr {s2s_cidr} accept')
 
     # Isolate direct roadwarrior peer-to-peer traffic on same interface
     lines.append(f'        iifname "{iface}" oifname "{iface}" drop')
 
-    if len(allowed_src_cidrs) == 1:
-        lines.append(f'        iifname "{iface}" ip saddr != {primary_net_str} drop')
-    else:
-        lines.append(
-            f'        iifname "{iface}" ip saddr != {_format_nft_set(allowed_src_cidrs)} drop'
-        )
+    _append_source_guard_rule(
+        lines,
+        iface=iface,
+        allowed_src_cidrs=allowed_src_cidrs,
+        primary_net_str=primary_net_str,
+        src_guard_chain=src_guard_chain,
+    )
 
     # Stateful return traffic
     lines.append(f'        oifname "{iface}" ct state established,related accept')
@@ -113,22 +128,18 @@ def _append_tunnel_forward_rules(
 
     if tunnel_mode == "split":
         lines.append(f'        iifname "{iface}" ip daddr {server_ip} accept')
-        if clean_dns:
-            dns_set = _format_nft_set(clean_dns)
-            lines.append(f'        iifname "{iface}" ip daddr {dns_set} udp dport 53 accept')
-            lines.append(f'        iifname "{iface}" ip daddr {dns_set} tcp dport 53 accept')
+        for dns_ip in clean_dns:
+            lines.append(f'        iifname "{iface}" ip daddr {dns_ip} udp dport 53 accept')
+            lines.append(f'        iifname "{iface}" ip daddr {dns_ip} tcp dport 53 accept')
         combined_dest = list(dict.fromkeys([*allowed_dest_cidrs, *s2s_dest_cidrs]))
-        if combined_dest:
-            cidr_set = _format_nft_set(combined_dest)
-            lines.append(f'        iifname "{iface}" ip daddr {cidr_set} accept')
+        for dest_cidr in combined_dest:
+            lines.append(f'        iifname "{iface}" ip daddr {dest_cidr} accept')
         # Drop any unauthorized destination (defeats client-side AllowedIPs/route tampering)
         lines.append(f'        iifname "{iface}" drop')
     else:
         lines.append(f'        iifname "{iface}" ip saddr {primary_net_str} accept')
-        if s2s_dest_cidrs:
-            lines.append(
-                f'        iifname "{iface}" ip saddr {_format_nft_set(s2s_dest_cidrs)} accept'
-            )
+        for s2s_cidr in s2s_dest_cidrs:
+            lines.append(f'        iifname "{iface}" ip saddr {s2s_cidr} accept')
         lines.append(f'        iifname "{iface}" drop')
 
 
@@ -149,10 +160,10 @@ def build_nft_ruleset(
     cluster_wg_interface: str = CLUSTER_RESERVED_INTERFACE,
     cluster_wg_port: int = DEFAULT_CLUSTER_WG_PORT,
 ) -> str:
-    """Build atomic nftables ruleset managing ONLY `table inet ns8_vpn_${MODULE_ID}`.
+    """Build per-instance `table inet ns8_vpn_${MODULE_ID}` ruleset (validated by Linux `nft -c -f -`).
 
-    NEVER emits `flush ruleset`. Uses idempotent create-then-delete-then-recreate
-    within a single atomic `nft -f -` transaction, covering WireGuard, OpenVPN, and S2S.
+    NEVER emits `flush ruleset` and NEVER uses `iifname` in `postrouting` (which the
+    Linux kernel `nf_tables` hook validator rejects with `EOPNOTSUPP`).
     """
     _guard_not_cluster_interface(interface_name)
     table_name = derive_nft_table_name(module_id)
@@ -185,20 +196,37 @@ def build_nft_ruleset(
         cluster_ifaces.append(cluster_wg_interface)
 
     wg_allowed_sources = [str(wg_net), *clean_s2s]
+    wg_src_guard_chain = (
+        f"src_guard_{_sanitize_chain_suffix(interface_name)}"
+        if len(wg_allowed_sources) > 1
+        else None
+    )
 
     lines: list[str] = [
-        f"table inet {table_name} {{}}",
-        f"delete table inet {table_name}",
         f"table inet {table_name} {{",
-        "    chain input {",
-        "        type filter hook input priority -10; policy accept;",
     ]
+
+    if wg_src_guard_chain:
+        lines.append(f"    chain {wg_src_guard_chain} {{")
+        for src_cidr in wg_allowed_sources:
+            lines.append(f"        ip saddr {src_cidr} return")
+        lines.append("        drop")
+        lines.append("    }")
+        lines.append("")
+
+    lines.extend(
+        [
+            "    chain input {",
+            "        type filter hook input priority -10; policy accept;",
+        ]
+    )
 
     _append_tunnel_input_rules(
         lines,
         iface=interface_name,
         allowed_src_cidrs=wg_allowed_sources,
         primary_net_str=str(wg_net),
+        src_guard_chain=wg_src_guard_chain,
         server_ip=wg_server_ip,
         tunnel_mode=tunnel_mode,
         clean_cidrs=clean_cidrs,
@@ -212,6 +240,7 @@ def build_nft_ruleset(
             iface=ovpn_interface_name,
             allowed_src_cidrs=[ovpn_net_str],
             primary_net_str=ovpn_net_str,
+            src_guard_chain=None,
             server_ip=ovpn_server_ip,
             tunnel_mode=tunnel_mode,
             clean_cidrs=clean_cidrs,
@@ -234,6 +263,7 @@ def build_nft_ruleset(
         iface=interface_name,
         allowed_src_cidrs=wg_allowed_sources,
         primary_net_str=str(wg_net),
+        src_guard_chain=wg_src_guard_chain,
         server_ip=wg_server_ip,
         tunnel_mode=tunnel_mode,
         allowed_dest_cidrs=clean_cidrs,
@@ -248,6 +278,7 @@ def build_nft_ruleset(
             iface=ovpn_interface_name,
             allowed_src_cidrs=[ovpn_net_str],
             primary_net_str=ovpn_net_str,
+            src_guard_chain=None,
             server_ip=ovpn_server_ip,
             tunnel_mode=tunnel_mode,
             allowed_dest_cidrs=clean_cidrs,
@@ -267,15 +298,15 @@ def build_nft_ruleset(
     )
     if nat_enabled:
         lines.append(
-            f'        iifname "{interface_name}" oifname != "{interface_name}" ip saddr {wg_net} masquerade'
+            f'        oifname != "{interface_name}" oifname != "lo" ip saddr {wg_net} masquerade'
         )
-        if clean_s2s:
+        for s2s_cidr in clean_s2s:
             lines.append(
-                f'        iifname "{interface_name}" oifname != "{interface_name}" ip saddr {_format_nft_set(clean_s2s)} masquerade'
+                f'        oifname != "{interface_name}" oifname != "lo" ip saddr {s2s_cidr} masquerade'
             )
         if ovpn_enabled and ovpn_interface_name and ovpn_net_str:
             lines.append(
-                f'        iifname "{ovpn_interface_name}" oifname != "{ovpn_interface_name}" ip saddr {ovpn_net_str} masquerade'
+                f'        oifname != "{ovpn_interface_name}" oifname != "lo" ip saddr {ovpn_net_str} masquerade'
             )
 
     lines.extend(
@@ -322,8 +353,9 @@ class FirewallEngine:
         ovpn_network: str = "",
         s2s_remote_cidrs: list[str] | None = None,
     ) -> str:
-        """Enable forwarding and atomically apply `table inet ns8_vpn_${MODULE_ID}`."""
+        """Enable forwarding and replace `table inet ns8_vpn_${MODULE_ID}` cleanly."""
         self.enable_ip_forwarding()
+        table_name = derive_nft_table_name(self.module_id)
         ruleset = build_nft_ruleset(
             module_id=self.module_id,
             interface_name=interface_name,
@@ -340,11 +372,11 @@ class FirewallEngine:
             cluster_wg_interface=self.cluster_wg_interface,
             cluster_wg_port=self.cluster_wg_port,
         )
+        self.runner.run(["nft", "delete", "table", "inet", table_name], check=False)
         self.runner.run(["nft", "-f", "-"], stdin=ruleset)
         return ruleset
 
     def cleanup_firewall(self) -> None:
         """Delete only this module's nftables table."""
         table_name = derive_nft_table_name(self.module_id)
-        script = f"table inet {table_name} {{}}\ndelete table inet {table_name}\n"
-        self.runner.run(["nft", "-f", "-"], stdin=script, check=False)
+        self.runner.run(["nft", "delete", "table", "inet", table_name], check=False)

@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+"""Enable and start the vpn-controller systemd unit immediately upon module creation."""
+
+from __future__ import annotations
+
+import os
+import sys
+
+_PYPKG = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "pypkg"))
+if _PYPKG not in sys.path:
+    sys.path.insert(0, _PYPKG)
+
+import vpn_helpers
+
+module_id = vpn_helpers.get_module_id()
+state_dir = vpn_helpers.get_state_dir(module_id)
+service_name = f"{module_id}.service"
+
+vpn_helpers.run_cmd(["systemctl", "enable", "--now", service_name], check=False)
+sock_path = vpn_helpers.get_admin_socket_path(module_id, state_dir=state_dir)
+vpn_helpers.wait_for_admin_socket(socket_path=sock_path, timeout=20.0)

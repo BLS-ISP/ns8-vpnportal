@@ -26,8 +26,7 @@ def test_split_tunnel_nft_ruleset_isolation_mss_and_nat() -> None:
 
     # Strictly manages ONLY its own sanitized table, NEVER global `flush ruleset`
     assert "flush ruleset" not in ruleset
-    assert "table inet ns8_vpn_vpn_1_test {}" in ruleset
-    assert "delete table inet ns8_vpn_vpn_1_test" in ruleset
+    assert (["nft", "delete", "table", "inet", "ns8_vpn_vpn_1_test"], None) in runner.commands
     assert "table inet ns8_vpn_vpn_1_test {" in ruleset
 
     # TCP MSS clamping
@@ -42,16 +41,19 @@ def test_split_tunnel_nft_ruleset_isolation_mss_and_nat() -> None:
 
     # Server-side Split-Tunnel allowlist + final unauthorized destination drop
     assert 'iifname "wg-vpn1" ip daddr 10.199.0.1 accept' in ruleset
-    assert 'iifname "wg-vpn1" ip daddr { 192.168.10.5 } udp dport 53 accept' in ruleset
-    assert 'iifname "wg-vpn1" ip daddr { 192.168.10.5 } tcp dport 53 accept' in ruleset
-    assert 'iifname "wg-vpn1" ip daddr { 192.168.10.0/24, 172.20.0.0/16 } accept' in ruleset
+    assert 'iifname "wg-vpn1" ip daddr 192.168.10.5 udp dport 53 accept' in ruleset
+    assert 'iifname "wg-vpn1" ip daddr 192.168.10.5 tcp dport 53 accept' in ruleset
+    assert 'iifname "wg-vpn1" ip daddr 192.168.10.0/24 accept' in ruleset
+    assert 'iifname "wg-vpn1" ip daddr 172.20.0.0/16 accept' in ruleset
     assert 'iifname "wg-vpn1" drop' in ruleset
     assert 'iifname "wg-vpn1" ip saddr 10.199.0.0/24 accept' not in ruleset
 
-    # Conditional SNAT / Masquerade enabled
+    # Conditional SNAT / Masquerade enabled (strictly NO `iifname` in postrouting!)
+    postrouting_block = ruleset.split("chain postrouting {", 1)[1]
+    assert "iifname" not in postrouting_block
     assert (
-        'iifname "wg-vpn1" oifname != "wg-vpn1" ip saddr 10.199.0.0/24 masquerade'
-        in ruleset
+        'oifname != "wg-vpn1" oifname != "lo" ip saddr 10.199.0.0/24 masquerade'
+        in postrouting_block
     )
 
 

@@ -171,7 +171,7 @@ async def test_openvpn_pki_encryption_profiles_auth_and_instant_kill(
         assert 'iifname "tun-vpn1" oifname "wg0" drop' in nft_rules
         assert 'iifname "tun-vpn1" ip daddr 10.5.4.0/24 drop' in nft_rules
         assert 'iifname "tun-vpn1" tcp dport 6379 drop' in nft_rules
-        assert 'iifname "tun-vpn1" oifname != "tun-vpn1" ip saddr 10.199.1.0/24 masquerade' in nft_rules
+        assert 'oifname != "tun-vpn1" oifname != "lo" ip saddr 10.199.1.0/24 masquerade' in nft_rules
 
         # Sync users so alice is in SQLite
         svc.ldap_sync.sync_now()

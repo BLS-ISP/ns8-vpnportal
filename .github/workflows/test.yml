@@ -36,6 +36,44 @@ jobs:
       - name: Run pytest suite
         run: pytest -v
 
+      - name: Validate generated nftables rulesets against Linux kernel nf_tables
+        run: |
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends nftables
+          python - <<'PY'
+          import subprocess
+          from container.app.firewall import build_nft_ruleset
+
+          cases = [
+              build_nft_ruleset(
+                  module_id="vpnportal1",
+                  interface_name="wg-vpnportal1",
+                  wg_network="10.199.0.0/24",
+                  tunnel_mode="split",
+                  allowed_cidrs=["192.168.178.0/24", "192.168.0.0/16"],
+                  dns_servers=["192.168.178.10", "192.168.178.11"],
+                  nat_enabled=True,
+                  ovpn_enabled=True,
+                  ovpn_interface_name="tun-vpnportal1",
+                  ovpn_network="10.199.1.0/24",
+                  s2s_remote_cidrs=["192.168.20.0/24", "10.90.0.0/16"],
+              ),
+              build_nft_ruleset(
+                  module_id="vpnportal1",
+                  interface_name="wg-vpnportal1",
+                  wg_network="10.199.0.0/24",
+                  tunnel_mode="full",
+                  allowed_cidrs=[],
+                  dns_servers=["9.9.9.9"],
+                  nat_enabled=False,
+              ),
+          ]
+          for idx, ruleset in enumerate(cases, 1):
+              res = subprocess.run(["sudo", "nft", "-c", "-f", "-"], input=ruleset, text=True, capture_output=True)
+              if res.returncode != 0:
+                  raise SystemExit(f"nft -c failed on case {idx}:\n{res.stderr}\nRuleset:\n{ruleset}")
+              print(f"Kernel nft -c validation passed for case {idx}")
+          PY
+
   cockpit-ui:
     name: Cockpit UI Lint & Build
     runs-on: ubuntu-latest

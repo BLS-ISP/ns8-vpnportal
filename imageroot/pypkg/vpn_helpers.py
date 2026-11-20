@@ -1507,6 +1507,34 @@ class UnixSocketHTTPConnection(http.client.HTTPConnection):
         self.sock = sock
 
 
+def _try_recover_controller_socket(sock_file: Path) -> bool:
+    """Attempt to start `${MODULE_ID}.service` on Linux if `admin.sock` is not listening yet."""
+    if getattr(socket, "AF_UNIX", None) is None or shutil.which("systemctl") is None:
+        return False
+    # Only auto-start when targeting the default module admin socket path
+    if sock_file != get_admin_socket_path():
+        return False
+    mid = get_module_id()
+    service_name = f"{mid}.service"
+    unit_file = Path(f"/etc/systemd/system/{service_name}")
+    if not unit_file.is_file():
+        return False
+    run_cmd(["systemctl", "start", service_name], check=False, timeout=25.0)
+    return wait_for_admin_socket(socket_path=sock_file, timeout=15.0, interval=0.4)
+
+
+def _read_service_journal_tail(lines: int = 12) -> str:
+    if shutil.which("journalctl") is None:
+        return ""
+    mid = get_module_id()
+    res = run_cmd(
+        ["journalctl", "-u", f"{mid}.service", "-n", str(lines), "--no-pager", "-o", "cat"],
+        check=False,
+        timeout=5.0,
+    )
+    return res.stdout.strip() if res.returncode == 0 and res.stdout.strip() else ""
+
+
 def admin_api_request(
     method: str,
     path: str,
@@ -1514,6 +1542,7 @@ def admin_api_request(
     *,
     socket_path: Path | None = None,
     timeout: float = 15.0,
+    auto_recover: bool = True,
 ) -> Any:
     """Perform a JSON HTTP request over `state/run/admin.sock` and return parsed JSON."""
     sock_file = socket_path or get_admin_socket_path()
@@ -1523,16 +1552,25 @@ def admin_api_request(
         body = json.dumps(payload).encode("utf-8")
         headers["Content-Type"] = "application/json"
 
-    conn = UnixSocketHTTPConnection(sock_file, timeout=timeout)
-    try:
-        conn.request(method.upper(), path, body=body, headers=headers)
-        resp = conn.getresponse()
-        raw_bytes = resp.read()
-        status = resp.status
-    except OSError as exc:
-        raise AdminApiError(f"Cannot connect to vpn-controller socket {sock_file}: {exc}", status_code=503) from exc
-    finally:
-        conn.close()
+    for attempt in range(2):
+        conn = UnixSocketHTTPConnection(sock_file, timeout=timeout)
+        try:
+            conn.request(method.upper(), path, body=body, headers=headers)
+            resp = conn.getresponse()
+            raw_bytes = resp.read()
+            status = resp.status
+            break
+        except OSError as exc:
+            if attempt == 0 and auto_recover and _try_recover_controller_socket(sock_file):
+                continue
+            journal_tail = _read_service_journal_tail() if auto_recover else ""
+            suffix = f" | Service logs: {journal_tail}" if journal_tail else ""
+            raise AdminApiError(
+                f"Cannot connect to vpn-controller socket {sock_file}: {exc}{suffix}",
+                status_code=503,
+            ) from exc
+        finally:
+            conn.close()
 
     parsed: Any = {}
     if raw_bytes:
@@ -1559,7 +1597,13 @@ def wait_for_admin_socket(
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         try:
-            resp = admin_api_request("GET", "/api/v1/admin/health", socket_path=sock_file, timeout=3.0)
+            resp = admin_api_request(
+                "GET",
+                "/api/v1/admin/health",
+                socket_path=sock_file,
+                timeout=3.0,
+                auto_recover=False,
+            )
             if isinstance(resp, dict) and resp.get("status") == "ok":
                 return True
         except AdminApiError:
