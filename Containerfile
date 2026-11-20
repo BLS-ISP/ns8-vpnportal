@@ -46,7 +46,7 @@ LABEL org.opencontainers.image.source="https://github.com/BLS-ISP/ns8-vpnportal"
       org.nethserver.rootfull=1 \
       org.nethserver.max-per-node=1 \
       org.nethserver.tcp-ports-demand=1 \
-      org.nethserver.authorizations="traefik@node:routeadm ldapproxy@node:accountconsumer node:fwadm" \
+      org.nethserver.authorizations="traefik@node:routeadm cluster:accountconsumer node:fwadm" \
       org.nethserver.min-core="3.2.0"
 
 ENTRYPOINT [ "/" ]

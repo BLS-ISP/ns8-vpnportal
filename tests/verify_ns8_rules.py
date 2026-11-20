@@ -146,7 +146,7 @@ def check_containerfile_and_lifecycle(errors: list[str]) -> None:
             "org.nethserver.max-per-node=1",
             "org.nethserver.tcp-ports-demand=1",
             "traefik@node:routeadm",
-            "ldapproxy@node:accountconsumer",
+            "cluster:accountconsumer",
             "node:fwadm",
             "org.nethserver.min-core",
             "/imageroot/actions/*/[0-9]*",
@@ -154,6 +154,11 @@ def check_containerfile_and_lifecycle(errors: list[str]) -> None:
         for token in required_tokens:
             if token not in content:
                 errors.append(f"[NS8-RULE-4] Root Containerfile missing required label/token: {token}")
+        if "ldapproxy@node:accountconsumer" in content:
+            errors.append(
+                "[NS8-RULE-4] Invalid authorization 'ldapproxy@node:accountconsumer' in Containerfile "
+                "(must be 'cluster:accountconsumer' so agent.bind_user_domains is permitted on cluster-leader)."
+            )
         _, _, scratch_stage = content.rpartition("FROM scratch")
         if "ENTRYPOINT" not in scratch_stage:
             errors.append(
