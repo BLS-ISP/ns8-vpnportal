@@ -41,7 +41,7 @@ FROM scratch
 COPY --from=imageroot-builder /imageroot /imageroot
 COPY --from=ui-builder /app/dist /ui
 
-LABEL org.opencontainers.image.source="https://github.com/GeneraBlack/ns8-vpnportal" \
+LABEL org.opencontainers.image.source="https://github.com/BLS-ISP/ns8-vpnportal" \
       org.opencontainers.image.licenses="GPL-3.0-or-later" \
       org.nethserver.rootfull=1 \
       org.nethserver.max-per-node=1 \

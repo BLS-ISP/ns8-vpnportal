@@ -5,8 +5,8 @@
 <h1 align="center">ns8-vpn — Business Roadwarrior VPN, Self-Service Portal & Site-to-Site for NethServer 8</h1>
 
 <p align="center">
-  <a href="https://github.com/GeneraBlack/ns8-vpnportal/actions/workflows/test.yml"><img src="https://github.com/GeneraBlack/ns8-vpnportal/actions/workflows/test.yml/badge.svg" alt="Test & NS8 Audit" /></a>
-  <a href="https://github.com/GeneraBlack/ns8-vpnportal/actions/workflows/build-images.yml"><img src="https://github.com/GeneraBlack/ns8-vpnportal/actions/workflows/build-images.yml/badge.svg" alt="Build Images" /></a>
+  <a href="https://github.com/BLS-ISP/ns8-vpnportal/actions/workflows/test.yml"><img src="https://github.com/BLS-ISP/ns8-vpnportal/actions/workflows/test.yml/badge.svg" alt="Test & NS8 Audit" /></a>
+  <a href="https://github.com/BLS-ISP/ns8-vpnportal/actions/workflows/build-images.yml"><img src="https://github.com/BLS-ISP/ns8-vpnportal/actions/workflows/build-images.yml/badge.svg" alt="Build Images" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL--3.0--or--later-blue.svg" alt="License: GPL-3.0-or-later" /></a>
 </p>
 
@@ -101,7 +101,7 @@ flowchart TB
 Install the module on a NethServer 8 node (e.g. node `1`) via the NS8 leader shell:
 
 ```bash
-add-module ghcr.io/generablack/vpn:latest 1
+add-module ghcr.io/bls-isp/vpn:latest 1
 ```
 
 The command returns the created module instance identifier (for example `vpn1`). Open the **NethServer 8 Cockpit UI**, navigate to **Applications → Business Roadwarrior VPN & Self-Service Portal**, and open **Settings** to complete initial setup.
@@ -185,7 +185,7 @@ api-cli run module/vpn1/list-audit-logs --data '{"limit": 100, "username": "jdoe
 ### Build Container Images Locally
 
 ```bash
-REPOBASE=ghcr.io/generablack IMAGETAG=latest ./build-images.sh
+REPOBASE=ghcr.io/bls-isp IMAGETAG=latest ./build-images.sh
 ```
 
 Builds both required images:
@@ -224,6 +224,6 @@ bash tests/ns8_smoke_test.sh --endpoint vpn.test.lan
 
 ## License
 
-Copyright (C) 2026 GeneraBlack and contributors.
+Copyright (C) 2026 BLS-ISP and contributors.
 
 This program is free software: you can redistribute it and/or modify it under the terms of the [GNU General Public License as published by the Free Software Foundation](LICENSE), either version 3 of the License, or (at your option) any later version (`GPL-3.0-or-later`).

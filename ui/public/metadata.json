@@ -7,14 +7,14 @@
   "categories": ["security", "network"],
   "authors": [
     {
-      "name": "GeneraBlack",
-      "email": "https://github.com/GeneraBlack"
+      "name": "BLS-ISP",
+      "email": "https://github.com/BLS-ISP"
     }
   ],
   "docs": {
-    "documentation_url": "https://github.com/GeneraBlack/ns8-vpnportal#readme",
-    "bug_url": "https://github.com/GeneraBlack/ns8-vpnportal/issues",
-    "code_url": "https://github.com/GeneraBlack/ns8-vpnportal"
+    "documentation_url": "https://github.com/BLS-ISP/ns8-vpnportal#readme",
+    "bug_url": "https://github.com/BLS-ISP/ns8-vpnportal/issues",
+    "code_url": "https://github.com/BLS-ISP/ns8-vpnportal"
   },
-  "source": "ghcr.io/generablack/vpn"
+  "source": "ghcr.io/bls-isp/vpn"
 }

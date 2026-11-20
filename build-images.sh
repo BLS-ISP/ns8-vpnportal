@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-repobase="${REPOBASE:-ghcr.io/generablack}"
+repobase="${REPOBASE:-ghcr.io/bls-isp}"
 imagetag="${IMAGETAG:-latest}"
 
 controller_image="${repobase}/vpn-controller"
